@@ -1,5 +1,5 @@
 // This source contains copy&pasted various bits from Firebug sources.
-
+//
 // open custom scope
 FBL.ns(function() {
     with (FBL) {
@@ -13,73 +13,56 @@ FBL.ns(function() {
         const rainbowWebsite = "http://xrefresh.com/rainbow"
         const rainbowPrefDomain = "extensions.rainbow";
 
-        // this function overrides firebug internal function !
         FBL.getSourceLineRange = function(lines, min, max, maxLineNoChars)
         {
             var html = []; // parts accumulated for whole range
-            var line;
-            if (!Firebug.RainbowExtension.isDisabled()) // TODO: implement scriptSyntaxHighlighting switch
+            if (!lines.parser)
             {
-                if (!lines.parser)
-                {
-                    var src = lines.join('\n')+'\n';
-                    var stream = Editor.singleStringStream(src);
-                    lines.parser = Editor.Parser.make(stream);
-                }
-                line = []; // parts accumulated for current line
-                var lineNumber = min; // lineNumber keeps
-                forEach(lines.parser, function(token)
-                {
-                    if (token.value == "\n"){
-                        // make sure all line numbers are the same width (with a fixed-width font)
-                        var lineNo = lineNumber + "";
-                        while (lineNo.length < maxLineNoChars)
-                            lineNo = " " + lineNo;
-
-                        html.push(
-                            '<div class="sourceRow"><a class="sourceLine">',
-                            lineNo,
-                            '</a><span class="sourceRowText">'
-                            );
-                        html = html.concat(line);
-                        html.push('</span></div>');
-
-                        // was this last line ?
-                        if (lineNumber==max) throw StopIteration;
-
-                        // prepare for next line
-                        line = [];
-                        lineNumber++;
-                    }
-                    else
-                    {
-                        // colorize token
-                        line.push(
-                            '<span class="'+token.style+'">',
-                            escapeHTML(token.value),
-                            '</span>'
-                            );
-                    }
-                });
+                var src = lines.join('\n')+'\n';
+                var stream = Editor.singleStringStream(src);
+                lines.parser = Editor.Parser.make(stream);
             }
-            else
+            var line = []; // parts accumulated for current line
+            var lineNumber = min; // lineNumber keeps
+            forEach(lines.parser, function(token)
             {
-                for (var i = min; i <= max; ++i)
-                {
+                if (token.value == "\n"){
                     // make sure all line numbers are the same width (with a fixed-width font)
-                    var lineNo = i + "";
-                    while (lineNo.length < maxLineNoChars) lineNo = " " + lineNo;
-                    line = escapeHTML(lines[i-1]);
+                    var lineNo = lineNumber + "";
+                    while (lineNo.length < maxLineNoChars)
+                        lineNo = " " + lineNo;
 
                     html.push(
                         '<div class="sourceRow"><a class="sourceLine">',
                         lineNo,
-                        '</a><span class="sourceRowText">',
-                        line,
-                        '</span></div>'
+                        '</a><span class="sourceRowText">'
                         );
+                    html = html.concat(line);
+                    html.push('</span></div>');
+
+                    // was this last line ?
+                    if (lineNumber==max) throw StopIteration;
+
+                    // prepare for next line
+                    line = [];
+                    lineNumber++;
                 }
-            }
+                else
+                {
+                    // colorize token
+                    var val = token.value;
+                    var trimval = val.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                    if (trimval.length!=val.length)
+                    {
+                      var start = val.indexOf(trimval);
+                      var left = val.substring(0, start);
+                      var right = val.substring(start+trimval.length);
+                      line.push(left+'<span class="'+token.style+'">'+escapeHTML(trimval)+'</span>'+right);
+                    }
+                    else
+                      line.push('<span class="'+token.style+'">'+escapeHTML(trimval)+'</span>');
+                }
+            });
             return html.join("");
         };
 
@@ -88,24 +71,33 @@ FBL.ns(function() {
         //
         Firebug.RainbowExtension = extend(Firebug.Module,
         {
-            cachedDisabled: false,
             rainbowOptionUpdateMap: {},
 
             /////////////////////////////////////////////////////////////////////////////////////////
             initialize: function()
             {
                 rainbowPrefs.addObserver(rainbowPrefDomain, this, false);
-                this.cachedDisabled = this.getPref('disabled');
-
-                var that = this;
-                this.loadHook = function() {
-                    var code = that.getPref('coloring');
-                    that.initSyntaxColoring(code);
-                    that.applySyntaxColoring(code);
-                };
-                var panelBar1 = $("fbPanelBar1");
-                var browser1 = panelBar1.browser;
-                browser1.addEventListener("load", this.loadHook, true);
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            initContext: function(context)
+            {
+                Firebug.Module.initContext.apply(this, arguments);
+                this.hookPanel(context);
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            reattachContext: function(browser, context)
+            {
+                Firebug.Module.reattachContext.apply(this, arguments);
+                this.hookPanel(context);
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            hookPanel: function(context)
+            {
+                var chrome = context ? context.chrome : FirebugChrome;
+                var code = this.getPref('coloring');
+                this.panelBar1 = chrome.$("fbPanelBar1");
+                this.initSyntaxColoring(this.panelBar1);
+                this.applySyntaxColoring(code, this.panelBar1);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             shutdown: function()
@@ -113,13 +105,11 @@ FBL.ns(function() {
                 rainbowPrefs.removeObserver(rainbowPrefDomain, this, false);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            initSyntaxColoring: function(code)
+            initSyntaxColoring: function(panelBar)
             {
-                var panelBar1 = $("fbPanelBar1");
-                var browser1 = panelBar1.browser;
-                browser1.removeEventListener("load", this.loadHook, true);
+                var browser = panelBar.browser;
 
-                var doc = browser1.contentDocument;
+                var doc = browser.contentDocument;
                 var styleElement = doc.createElement("style");
 
                 styleElement.setAttribute("id", "rainbow-style-sheet");
@@ -132,23 +122,21 @@ FBL.ns(function() {
                 headElement.appendChild(styleElement);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            lookupStyleElement: function()
+            lookupStyleElement: function(panelBar)
             {
-                var panelBar1 = $("fbPanelBar1");
-                var browser1 = panelBar1.browser;
-                var doc = browser1.contentDocument;
+                var browser = panelBar.browser;
+                var doc = browser.contentDocument;
                 var styleElement = doc.getElementById('rainbow-style-sheet');
                 return styleElement;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            applySyntaxColoring: function(code)
+            applySyntaxColoring: function(code, panelBar)
             {
-                var styleElement = this.lookupStyleElement();
+                var styleElement = this.lookupStyleElement(panelBar);
                 if (!styleElement) return;
                 styleElement.innerHTML = '';
-                var panelBar1 = $("fbPanelBar1");
-                var browser1 = panelBar1.browser;
-                var doc = browser1.contentDocument;
+                var browser = panelBar.browser;
+                var doc = browser.contentDocument;
                 styleElement.appendChild(doc.createTextNode(code));
             },
             /////////////////////////////////////////////////////////////////////////////////////////
@@ -188,15 +176,10 @@ FBL.ns(function() {
                 window.openDialog("chrome://rainbow/content/import.xul", "", "chrome, dialog, modal, resizable=yes", params).focus();
                 if (params.out) {
                     var code = params.out.code;
-                    this.applySyntaxColoring(code);
+                    this.applySyntaxColoring(code, this.panelBar1);
                     this.saveSyntaxColoring(code);
                     this.invalidatePanels();
                 }
-            },
-            /////////////////////////////////////////////////////////////////////////////////////////
-            isDisabled: function()
-            {
-                return this.cachedDisabled;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             showPanel: function(browser, panel)
@@ -214,7 +197,6 @@ FBL.ns(function() {
             {
                 var name = data.substr(rainbowPrefDomain.length+1);
                 var value = this.getPref(name);
-                this.updatePref(name, value);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             getPref: function(name)
@@ -255,23 +237,6 @@ FBL.ns(function() {
                         panel.refresh();
                     }
                 }
-            },
-            /////////////////////////////////////////////////////////////////////////////////////////
-            updatePref: function(name, value)
-            {
-                // Prevent infinite recursion due to pref observer
-                if (name in this.rainbowOptionUpdateMap)
-                    return;
-
-                this.rainbowOptionUpdateMap[name] = 1;
-                if (name == "disabled")
-                {
-                    this.cachedDisabled = value;
-                    alert('This action will take effect after restarting Firebug.');
-                    this.invalidatePanels();
-                }
-
-                delete this.rainbowOptionUpdateMap[name];
             }
         });
 
@@ -298,15 +263,11 @@ FBL.ns(function() {
                 Firebug.CSSStyleSheetPanel.prototype.destroy.apply(this, arguments);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            lookupStyleSheet: function()
+            lookupStyleSheet: function(browser)
             {
-                var panelBar1 = $("fbPanelBar1");
-                var browser1 = panelBar1.browser;
-                var doc = browser1.contentDocument;
+                var doc = browser.contentDocument;
                 var styleElement = doc.getElementById('rainbow-style-sheet');
-                var styleSheet = styleElement.sheet;
-                if (styleSheet.editStyleSheet) styleSheet = styleSheet.editStyleSheet.sheet;
-                return styleSheet;
+                return styleElement.sheet;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             markChange: function()
@@ -314,7 +275,8 @@ FBL.ns(function() {
                 Firebug.CSSStyleSheetPanel.prototype.markChange.apply(this, arguments);
                 var that = this;
                 setTimeout(function () {
-                    var sheet = that.lookupStyleSheet();
+                    var browser = that.context.chrome.getPanelBrowser(that.parentPanel);
+                    var sheet = that.lookupStyleSheet(browser);
                     var rules = that.getStyleSheetRules(that.context, sheet);
                     Firebug.RainbowExtension.saveSyntaxColoring(rules);
                 }, 1000);
@@ -327,17 +289,16 @@ FBL.ns(function() {
             /////////////////////////////////////////////////////////////////////////////////////////
             show: function()
             {
-                var sheet = this.lookupStyleSheet();
+                var browser = this.context.chrome.getPanelBrowser(this.parentPanel);
+                var sheet = this.lookupStyleSheet(browser);
                 this.updateLocation(sheet);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             getOptionsMenuItems: function()
             {
                 return [
-                //            {label: 'Disable Rainbow', nol10n: true, type: "checkbox", checked: Firebug.RainbowExtension.isDisabled(),
-                //                command: bindFixed(Firebug.RainbowExtension.setPref, Firebug.RainbowExtension, 'disabled', !Firebug.RainbowExtension.isDisabled()) },
                 {
-                    label: 'Import Preset ...',
+                    label: 'Import Color Preset ...',
                     nol10n: true,
                     command: bind(Firebug.RainbowExtension.importPreset, Firebug.RainbowExtension)
                 },
@@ -353,7 +314,6 @@ FBL.ns(function() {
 
         Firebug.registerModule(Firebug.RainbowExtension);
         Firebug.registerPanel(SyntaxColoringPanel);
-
         }
     }
 ); // close custom scope
