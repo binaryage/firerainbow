@@ -13,12 +13,12 @@ FBL.ns(function() {
         const rainbowWebsite = "http://xrefresh.com/rainbow"
         const rainbowPrefDomain = "extensions.rainbow";
 
-        FBL.getSourceLineRangeOld = FBL.getSourceLineRange;
+        // this monkey patching is here to simulate "javascript rendering finished" event
+        FBL.getSourceLineRangeOriginal = FBL.getSourceLineRange;
         FBL.getSourceLineRange = function(lines, min, max, maxLineNoChars)
         {
-            var res = FBL.getSourceLineRangeOld.apply(this, arguments);
             Firebug.RainbowExtension.daemonPing();
-            return res;
+            return FBL.getSourceLineRangeOriginal.apply(this, arguments);
         };
 
         ////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,6 @@ FBL.ns(function() {
         //
         Firebug.RainbowExtension = extend(Firebug.Module,
         {
-            working: false,
             pingCounter: 0,
             daemonTimer: null,
             rainbowOptionUpdateMap: {},
@@ -45,8 +44,13 @@ FBL.ns(function() {
             /////////////////////////////////////////////////////////////////////////////////////////
             reattachContext: function(browser, context)
             {
+                if (this.daemonTimer) {
+                    var recolorize = true;
+                    this.daemonStop();
+                }
                 Firebug.Module.reattachContext.apply(this, arguments);
                 this.hookPanel(context);
+                if (recolorize) this.daemonPing();
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             hookPanel: function(context)
@@ -75,32 +79,44 @@ FBL.ns(function() {
                 var daemonInterval = this.getPref('daemonInterval', 50);
                 this.daemonTimer = setInterval(function(){
                     var count = linesPerCall;
-                    while (--count) {
+                    while (count--) {
+                      // move for next node
                       that.currentNode = getNextByClass(that.currentNode, 'sourceRowText');
+                      // finish if no more nodes
                       if (!that.currentNode) {
                           that.daemonStop();
                           return;
                       }
-                      var code = that.currentNode.textContent;
+                      // skip if node has been already processed
+                      if (that.currentNode.className.indexOf(' rb')!=-1) { count++; continue; }
+                      // extract line code from node
+                      // note: \n is important to simulate multi line text in stream (for example for multi line comments depend on this)
+                      var code = that.currentNode.textContent+'\n';
                       that.stream.reset(code);
-                      //FBTrace.dumpProperties("x=", that.currentNode.textContent);
                       var line = []; // parts accumulated for current line
+                      // process line tokens
                       forEach(that.parser, function(token) {
                           // colorize token
                           var val = token.value;
                           var trimval = val.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
                           if (trimval.length!=val.length)
                           {
-                            var start = val.indexOf(trimval);
-                            var left = val.substring(0, start);
-                            var right = val.substring(start+trimval.length);
-                            line.push((left?('<span class="whitespace">'+left+'</span>'):'')+'<span class="'+token.style+'">'+escapeHTML(trimval)+'</span>'+(right?('<span class="whitespace">'+right+'</span>'):''));
+                              // this path is here to process surrounding token whitespaces
+                              var start = val.indexOf(trimval);
+                              var left = val.substring(0, start);
+                              var right = val.substring(start+trimval.length);
+                              line.push((left?('<span class="whitespace">'+left+'</span>'):'')+'<span class="'+token.style+'">'+escapeHTML(trimval)+'</span>'+(right?('<span class="whitespace">'+right+'</span>'):''));
                           }
                           else
-                            line.push('<span class="'+token.style+'">'+escapeHTML(val)+'</span>');
+                          {
+                              // fast path for token without surrounding whitespaces
+                              line.push('<span class="'+token.style+'">'+escapeHTML(val)+'</span>');
+                          }
                       });
-                      //FBTrace.dumpProperties("x=", line.join(""));
+                      // apply coloring to line
                       that.currentNode.innerHTML = line.join("");
+                      // mark line as colorized
+                      that.currentNode.className += ' rb';
                     }
                 }, daemonInterval);
             },
@@ -124,7 +140,7 @@ FBL.ns(function() {
                 setTimeout(function(){
                     if (that.pingCounter!=cnt) return;
                     that.daemonStart();
-                }, 500);
+                }, 200);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             initSyntaxColoring: function(panelBar)
