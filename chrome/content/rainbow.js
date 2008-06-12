@@ -69,14 +69,16 @@ FBL.ns(function() {
             /////////////////////////////////////////////////////////////////////////////////////////
             daemonStart: function()
             {
-                this.daemonStop();
+                this.daemonStop(); // never let run two or more daemons concruently!
+                // init daemon state
                 this.currentDoc = this.panelBar1.browser.contentDocument;
                 this.currentNode = this.currentDoc.getElementsByTagName('body')[0];
                 this.stream = Editor.rainbowStream();
                 this.parser = Editor.Parser.make(this.stream);
-                var that = this;
                 var linesPerCall = this.getPref('linesPerCall', 20);
                 var daemonInterval = this.getPref('daemonInterval', 50);
+                // run daemon
+                var that = this;
                 this.daemonTimer = setInterval(function(){
                     var count = linesPerCall;
                     while (count--) {
