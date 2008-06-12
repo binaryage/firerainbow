@@ -6,8 +6,8 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <script>Editor = {};</script>
     <script type="application/x-javascript" src="chrome://rainbow/content/codemirror/util.js"/>
-    <script type="application/x-javascript" src="chrome://rainbow/content/codemirror/stringstream.js"/>
     <script type="application/x-javascript" src="chrome://rainbow/content/codemirror/tokenizejavascript.js"/>
     <script type="application/x-javascript" src="chrome://rainbow/content/codemirror/parsejavascript.js"/>
+    <script type="application/x-javascript" src="chrome://rainbow/content/stream.js"/>
     <script type="application/x-javascript" src="chrome://rainbow/content/rainbow.js"/>
 </overlay>

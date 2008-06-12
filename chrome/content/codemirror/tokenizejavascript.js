@@ -105,7 +105,7 @@ var tokenizeJavaScript = function(){
     function readRegexp(){
       nextUntilUnescaped("/");
       source.nextWhile(matcher(/[gi]/));
-      return result("regexp", "string");
+      return result("regexp", "regexp");
     }
     // Mutli-line comments are tricky. We want to return the newlines
     // embedded in them as regular newline tokens, and then continue

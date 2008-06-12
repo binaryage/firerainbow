@@ -13,57 +13,12 @@ FBL.ns(function() {
         const rainbowWebsite = "http://xrefresh.com/rainbow"
         const rainbowPrefDomain = "extensions.rainbow";
 
+        FBL.getSourceLineRangeOld = FBL.getSourceLineRange;
         FBL.getSourceLineRange = function(lines, min, max, maxLineNoChars)
         {
-            var html = []; // parts accumulated for whole range
-            if (!lines.parser)
-            {
-                var src = lines.join('\n')+'\n';
-                var stream = Editor.singleStringStream(src);
-                lines.parser = Editor.Parser.make(stream);
-            }
-            var line = []; // parts accumulated for current line
-            var lineNumber = min; // lineNumber keeps
-            forEach(lines.parser, function(token)
-            {
-                if (token.value == "\n"){
-                    // make sure all line numbers are the same width (with a fixed-width font)
-                    var lineNo = lineNumber + "";
-                    while (lineNo.length < maxLineNoChars)
-                        lineNo = " " + lineNo;
-
-                    html.push(
-                        '<div class="sourceRow"><a class="sourceLine">',
-                        lineNo,
-                        '</a><span class="sourceRowText">'
-                        );
-                    html = html.concat(line);
-                    html.push('</span></div>');
-
-                    // was this last line ?
-                    if (lineNumber==max) throw StopIteration;
-
-                    // prepare for next line
-                    line = [];
-                    lineNumber++;
-                }
-                else
-                {
-                    // colorize token
-                    var val = token.value;
-                    var trimval = val.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                    if (trimval.length!=val.length)
-                    {
-                      var start = val.indexOf(trimval);
-                      var left = val.substring(0, start);
-                      var right = val.substring(start+trimval.length);
-                      line.push(left+'<span class="'+token.style+'">'+escapeHTML(trimval)+'</span>'+right);
-                    }
-                    else
-                      line.push('<span class="'+token.style+'">'+escapeHTML(trimval)+'</span>');
-                }
-            });
-            return html.join("");
+            var res = FBL.getSourceLineRangeOld.apply(this, arguments);
+            Firebug.RainbowExtension.daemonPing();
+            return res;
         };
 
         ////////////////////////////////////////////////////////////////////////
@@ -71,6 +26,9 @@ FBL.ns(function() {
         //
         Firebug.RainbowExtension = extend(Firebug.Module,
         {
+            working: false,
+            pingCounter: 0,
+            daemonTimer: null,
             rainbowOptionUpdateMap: {},
 
             /////////////////////////////////////////////////////////////////////////////////////////
@@ -103,6 +61,70 @@ FBL.ns(function() {
             shutdown: function()
             {
                 rainbowPrefs.removeObserver(rainbowPrefDomain, this, false);
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            daemonStart: function()
+            {
+                this.daemonStop();
+                this.currentDoc = this.panelBar1.browser.contentDocument;
+                this.currentNode = this.currentDoc.getElementsByTagName('body')[0];
+                this.stream = Editor.rainbowStream();
+                this.parser = Editor.Parser.make(this.stream);
+                var that = this;
+                var linesPerCall = this.getPref('linesPerCall', 20);
+                var daemonInterval = this.getPref('daemonInterval', 50);
+                this.daemonTimer = setInterval(function(){
+                    var count = linesPerCall;
+                    while (--count) {
+                      that.currentNode = getNextByClass(that.currentNode, 'sourceRowText');
+                      if (!that.currentNode) {
+                          that.daemonStop();
+                          return;
+                      }
+                      var code = that.currentNode.textContent;
+                      that.stream.reset(code);
+                      //FBTrace.dumpProperties("x=", that.currentNode.textContent);
+                      var line = []; // parts accumulated for current line
+                      forEach(that.parser, function(token) {
+                          // colorize token
+                          var val = token.value;
+                          var trimval = val.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                          if (trimval.length!=val.length)
+                          {
+                            var start = val.indexOf(trimval);
+                            var left = val.substring(0, start);
+                            var right = val.substring(start+trimval.length);
+                            line.push((left?('<span class="whitespace">'+left+'</span>'):'')+'<span class="'+token.style+'">'+escapeHTML(trimval)+'</span>'+(right?('<span class="whitespace">'+right+'</span>'):''));
+                          }
+                          else
+                            line.push('<span class="'+token.style+'">'+escapeHTML(val)+'</span>');
+                      });
+                      //FBTrace.dumpProperties("x=", line.join(""));
+                      that.currentNode.innerHTML = line.join("");
+                    }
+                }, daemonInterval);
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            daemonStop: function()
+            {
+                this.stream = undefined;
+                this.parser = undefined;
+                this.currentDoc = undefined;
+                this.currentNode = undefined;
+                if (!this.daemonTimer) return;
+                clearInterval(this.daemonTimer);
+                this.daemonTimer = null;
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            daemonPing: function()
+            {
+                this.pingCounter++;
+                var that = this;
+                var cnt = this.pingCounter;
+                setTimeout(function(){
+                    if (that.pingCounter!=cnt) return;
+                    that.daemonStart();
+                }, 500);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             initSyntaxColoring: function(panelBar)
@@ -199,7 +221,7 @@ FBL.ns(function() {
                 var value = this.getPref(name);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            getPref: function(name)
+            getPref: function(name, def)
             {
                 var prefName = rainbowPrefDomain + "." + name;
 
@@ -210,7 +232,7 @@ FBL.ns(function() {
                     return rainbowPrefs.getIntPref(prefName);
                 else if (type == nsIPrefBranch.PREF_BOOL)
                     return rainbowPrefs.getBoolPref(prefName);
-                return null;
+                return def;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             setPref: function(name, value)
