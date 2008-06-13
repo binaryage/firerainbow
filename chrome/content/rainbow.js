@@ -1,5 +1,6 @@
 // This source contains copy&pasted various bits from Firebug sources.
 //
+
 // open custom scope
 FBL.ns(function() {
     with (FBL) {
@@ -12,6 +13,12 @@ FBL.ns(function() {
 
         const rainbowWebsite = "http://xrefresh.com/rainbow"
         const rainbowPrefDomain = "extensions.rainbow";
+
+        Firebug.TraceModule.DBG_RAINBOW = false;
+        var type = rainbowPrefs.getPrefType('extensions.firebug.DBG_RAINBOW');
+        if (type!=nsIPrefBranch.PREF_BOOL) try {
+            rainbowPrefs.setBoolPref('extensions.firebug.DBG_RAINBOW', false);
+        } catch(e) {}
 
         // this monkey patching is here to simulate "javascript rendering finished" event
         FBL.getSourceLineRangeOriginal = FBL.getSourceLineRange;
@@ -26,78 +33,97 @@ FBL.ns(function() {
         //
         Firebug.RainbowExtension = extend(Firebug.Module,
         {
-            pingCounter: 0,
-            daemonTimer: null,
-            rainbowOptionUpdateMap: {},
+            pings: 0,
 
             /////////////////////////////////////////////////////////////////////////////////////////
-            initialize: function()
+            showPanel: function(browser, panel)
             {
-                rainbowPrefs.addObserver(rainbowPrefDomain, this, false);
+                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
+                var isScriptPanel = panel && panel.name == "script";
+                // stop daemon if leaving script panel and start it again if needed
+                if (isScriptPanel) this.startDaemon(); else this.stopDaemon();
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             initContext: function(context)
             {
+                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: initContext", context);
                 Firebug.Module.initContext.apply(this, arguments);
                 this.hookPanel(context);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             reattachContext: function(browser, context)
             {
-                if (this.daemonTimer) {
-                    var recolorize = true;
-                    this.stopDaemon();
-                }
+                // reattach is called when user decides to show firebug in separate window
+                // this is somewhat special situation, we just stop old daemon and start it again for newly hooked panel
+                // daemon control is robust and will perform no-op if there is nothing to do
+                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reattachContext", context);
+                this.stopDaemon();
                 Firebug.Module.reattachContext.apply(this, arguments);
                 this.hookPanel(context);
-                if (recolorize) this.pingDaemon();
+                this.startDaemon();
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             hookPanel: function(context)
             {
+                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: hookPanel", context);
                 var chrome = context ? context.chrome : FirebugChrome;
+                var that = this;
+                // monkey patching of chrome to get notified when (possibly) new sourceBox is available as result of switching to a new script
+                if (!chrome.onPanelNavigateOriginal)
+                {
+                    chrome.onPanelNavigateOriginal = chrome.onPanelNavigate;
+                    chrome.onPanelNavigate = function() {
+                        var res = this.onPanelNavigateOriginal();
+                        that.startDaemon();
+                        return res;
+                    }
+                }
                 var code = this.getPref('coloring');
                 this.panelBar1 = chrome.$("fbPanelBar1");
                 this.initSyntaxColoring(this.panelBar1);
                 this.applySyntaxColoring(code, this.panelBar1);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            shutdown: function()
-            {
-                rainbowPrefs.removeObserver(rainbowPrefDomain, this, false);
-            },
-            /////////////////////////////////////////////////////////////////////////////////////////
             startDaemon: function()
             {
+                // daemon is here to perform colorization in background
+                // the goal is not to block Firebug functionality and don't hog CPU for too long
+                // daemonInterval and linesPerCall properties define how intensive this background process should be
+
                 this.stopDaemon(); // never let run two or more daemons concruently!
+                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: startDaemon");
+
+                // find active source box - here we will keep daemon state (parser state)
+                var sourceBox = this.findVisibleSourceBox(this.panelBar1.browser);
+                if (!sourceBox) return;
+                if (sourceBox.colorized) return; // already colorized
+
                 // init daemon state
-                this.currentDoc = this.panelBar1.browser.contentDocument;
-                this.currentNode = this.currentDoc.getElementsByTagName('body')[0];
-                this.stream = Editor.rainbowStream();
-                this.parser = Editor.Parser.make(this.stream);
+                if (!sourceBox.stream) sourceBox.stream = Editor.rainbowStream();
+                if (!sourceBox.parser) sourceBox.parser = Editor.Parser.make(sourceBox.stream);
+                if (!sourceBox.currentNode) sourceBox.currentNode = getNextByClass(sourceBox, 'sourceRowText'); // slower lookup
+
                 var linesPerCall = this.getPref('linesPerCall', 20);
                 var daemonInterval = this.getPref('daemonInterval', 50);
+
                 // run daemon
                 var that = this;
                 this.daemonTimer = setInterval(function(){
                     var count = linesPerCall;
                     while (count--) {
-                      // move for next node
-                      that.currentNode = getNextByClass(that.currentNode, 'sourceRowText');
                       // finish if no more nodes
-                      if (!that.currentNode) {
+                      if (!sourceBox.currentNode) {
                           that.stopDaemon();
+                          sourceBox.colorized = true;
                           return;
                       }
-                      // skip if node has been already processed
-                      if (that.currentNode.className.indexOf(' rb')!=-1) { count++; continue; }
                       // extract line code from node
-                      // note: \n is important to simulate multi line text in stream (for example for multi line comments depend on this)
-                      var code = that.currentNode.textContent+'\n';
-                      that.stream.reset(code);
+                      // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
+                      var code = sourceBox.currentNode.textContent+'\n';
+                      sourceBox.stream.reset(code);
                       var line = []; // parts accumulated for current line
                       // process line tokens
-                      forEach(that.parser, function(token) {
+                      forEach(sourceBox.parser, function(token) {
                           // colorize token
                           var val = token.value;
                           var trimval = val.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -116,42 +142,61 @@ FBL.ns(function() {
                           }
                       });
                       // apply coloring to line
-                      that.currentNode.innerHTML = line.join("");
-                      // mark line as colorized
-                      that.currentNode.className += ' rb';
+                      sourceBox.currentNode.innerHTML = line.join("");
+
+                      // move for next node
+                      sourceBox.currentNode = that.fastNextLineLookup(sourceBox.currentNode);
                     }
                 }, daemonInterval);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             stopDaemon: function()
             {
-                this.stream = undefined;
-                this.parser = undefined;
-                this.currentDoc = undefined;
-                this.currentNode = undefined;
                 if (!this.daemonTimer) return;
+                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: stopDaemon");
                 clearInterval(this.daemonTimer);
-                this.daemonTimer = null;
+                this.daemonTimer = undefined;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             pingDaemon: function()
             {
-                this.pingCounter++;
+                // trivial implementation of buffered deferred triggering of daemon
+                this.pings++;
+                var pingMarker = this.pings;
                 var that = this;
-                var cnt = this.pingCounter;
                 setTimeout(function(){
-                    if (that.pingCounter!=cnt) return;
+                    if (that.pings!=pingMarker) return;
                     that.startDaemon();
                 }, 200);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
+            findVisibleSourceBox: function(browser)
+            {
+                // XPath should be much faster than traversing DOM in JS ...
+                var nodes = getElementsByXPath(browser.contentDocument, '//*[contains(@class, \'sourceBox\')][@collapsed=\'false\']');
+                if (nodes.length>0) return nodes[0];
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            fastNextLineLookup: function(node)
+            {
+                // this expects specific HTML structure generated by firebug (as observed in v1.2)
+                // this may possibly break in future versions, but we prefer speed over maintanability
+                var parent = node.parentNode;
+                if (!parent) return;
+                var sibling = parent.nextSibling;
+                if (!sibling) return;
+                return getChildByClass(sibling, 'sourceRowText');
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            // initializes syntax coloring heleprs for panel
             initSyntaxColoring: function(panelBar)
             {
+                // here we append <style id='rainbow-style-sheet' type='text/css'>/* Syntax coloring */</style> into head element
+                // this style element we will use to apply coloring rules to all script boxes in the panel
                 var browser = panelBar.browser;
-
                 var doc = browser.contentDocument;
-                var styleElement = doc.createElement("style");
 
+                var styleElement = doc.createElement("style");
                 styleElement.setAttribute("id", "rainbow-style-sheet");
                 styleElement.setAttribute("type", "text/css");
                 styleElement.appendChild(doc.createTextNode('/* Syntax coloring */'));
@@ -162,6 +207,7 @@ FBL.ns(function() {
                 headElement.appendChild(styleElement);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
+            // returns our rainbow-style-sheet element from given panel
             lookupStyleElement: function(panelBar)
             {
                 var browser = panelBar.browser;
@@ -170,6 +216,7 @@ FBL.ns(function() {
                 return styleElement;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
+            // applies new coloring rules to given panel
             applySyntaxColoring: function(code, panelBar)
             {
                 var styleElement = this.lookupStyleElement(panelBar);
@@ -180,6 +227,7 @@ FBL.ns(function() {
                 styleElement.appendChild(doc.createTextNode(code));
             },
             /////////////////////////////////////////////////////////////////////////////////////////
+            // serializes CSS rules and stores them into coloring property (save)
             saveSyntaxColoring: function(rules)
             {
                 var code = rules;
@@ -208,6 +256,7 @@ FBL.ns(function() {
                 this.setPref('coloring', code);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
+            // opens dialog to import color preset (color preset is just a piece of CSS)
             importPreset: function()
             {
                 var params = {
@@ -222,21 +271,10 @@ FBL.ns(function() {
                 }
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            showPanel: function(browser, panel)
-            {
-                var isRainbowExtension = panel && panel.name == "rainbow";
-            },
-            /////////////////////////////////////////////////////////////////////////////////////////
+            // opens rainbow website in new tab
             visitWebsite: function()
             {
                 openNewTab(rainbowWebsite);
-            },
-            /////////////////////////////////////////////////////////////////////////////////////////
-            // nsIPrefObserver
-            observe: function(subject, topic, data)
-            {
-                var name = data.substr(rainbowPrefDomain.length+1);
-                var value = this.getPref(name);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             getPref: function(name, def)
@@ -271,11 +309,9 @@ FBL.ns(function() {
                 for (var i = 0; i < TabWatcher.contexts.length; ++i)
                 {
                     var panel = TabWatcher.contexts[i].getPanel("script", true);
-                    if (panel)
-                    {
-                        panel.context.invalidatePanels("rainbow");
-                        panel.refresh();
-                    }
+                    if (!panel) continue;
+                    panel.context.invalidatePanels("rainbow");
+                    panel.refresh();
                 }
             }
         });
