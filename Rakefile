@@ -1,3 +1,21 @@
+# mac users should have all in place
+# 1. $gem install rake
+# 2. $cd some/path/rainbow4firebug
+# 3. $rake
+#
+# win users:
+# 1. install binary ruby (unzip to C:\ruby)
+# 2. set C:\ruby\bin to system path
+# 3. download and install ruby gems (http://www.rubygems.org/read/chapter/3)
+# 5. solve dll problems:
+# 5.a) download openssl 0.98e or later here (http://smithii.com/openssl), copy ssleay32.dll and libeay32.dll to your C:\ruby\bin
+# 5.b) download zlib binary here (http://gnuwin32.sourceforge.net/downlinks/zlib-bin-zip.php), rename zlib1.dll to zlib.dll, and copy it to your C:\ruby\bin
+# 6. >gem install win32console
+# 7. >gem install rake
+# 8. install zip to system path (http://www.info-zip.org/Zip.html)
+# 9. >cd some\path\rainbow4firebug
+#10. >rake
+
 ROOT = File.expand_path('.')
 SRC = ROOT
 DST = File.join(ROOT, 'build')
@@ -7,7 +25,7 @@ TMP = File.join(ROOT, 'tmp')
 begin
   require 'Win32/Console/ANSI' if PLATFORM =~ /win32/
 rescue LoadError
-  raise 'You must gem install win32console to use color on Windows'
+  raise 'You must "gem install win32console" to use terminal colors on Windows'
 end
 
 def colorize(text, color_code)
@@ -92,11 +110,11 @@ task :default do
   my_mkdir(DST) unless File.exist?(DST)
 
   res = "#{DST}/rainbow-#{version}.xpi"
-  File.unlink(res) if File.exists?(res)  
+  File.unlink(res) if File.exists?(res)
   puts "#{cmd_color('zipping')} #{file_color(res)}"
   owd = Dir.getwd()
   Dir.chdir(TMP)
-  system("zip -r \"#{res}\" *");
+  puts red('need zip on command line (download http://www.info-zip.org/Zip.html)') unless system("zip -r \"#{res}\" *");
   Dir.chdir(owd)
   remove_dir(TMP) if File.exist?(TMP) # recursive!
 end
