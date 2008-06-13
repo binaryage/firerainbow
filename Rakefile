@@ -37,7 +37,7 @@ def cp_dir(src, dst)
   puts "#{cmd_color('copying')} #{dir_color(src)}"
   puts "     -> #{dir_color(dst)}"
   Find.find(src) do |fn|
-    next if fn =~ /(^\.)/
+    next if fn =~ /\/\./
     r = fn[src.size..-1]
     if File.directory? fn
       mkdir File.join(dst,r) unless File.exist? File.join(dst,r)
