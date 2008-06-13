@@ -17,7 +17,7 @@ FBL.ns(function() {
         FBL.getSourceLineRangeOriginal = FBL.getSourceLineRange;
         FBL.getSourceLineRange = function(lines, min, max, maxLineNoChars)
         {
-            Firebug.RainbowExtension.daemonPing();
+            Firebug.RainbowExtension.pingDaemon();
             return FBL.getSourceLineRangeOriginal.apply(this, arguments);
         };
 
@@ -46,11 +46,11 @@ FBL.ns(function() {
             {
                 if (this.daemonTimer) {
                     var recolorize = true;
-                    this.daemonStop();
+                    this.stopDaemon();
                 }
                 Firebug.Module.reattachContext.apply(this, arguments);
                 this.hookPanel(context);
-                if (recolorize) this.daemonPing();
+                if (recolorize) this.pingDaemon();
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             hookPanel: function(context)
@@ -67,9 +67,9 @@ FBL.ns(function() {
                 rainbowPrefs.removeObserver(rainbowPrefDomain, this, false);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            daemonStart: function()
+            startDaemon: function()
             {
-                this.daemonStop(); // never let run two or more daemons concruently!
+                this.stopDaemon(); // never let run two or more daemons concruently!
                 // init daemon state
                 this.currentDoc = this.panelBar1.browser.contentDocument;
                 this.currentNode = this.currentDoc.getElementsByTagName('body')[0];
@@ -86,7 +86,7 @@ FBL.ns(function() {
                       that.currentNode = getNextByClass(that.currentNode, 'sourceRowText');
                       // finish if no more nodes
                       if (!that.currentNode) {
-                          that.daemonStop();
+                          that.stopDaemon();
                           return;
                       }
                       // skip if node has been already processed
@@ -123,7 +123,7 @@ FBL.ns(function() {
                 }, daemonInterval);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            daemonStop: function()
+            stopDaemon: function()
             {
                 this.stream = undefined;
                 this.parser = undefined;
@@ -134,14 +134,14 @@ FBL.ns(function() {
                 this.daemonTimer = null;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            daemonPing: function()
+            pingDaemon: function()
             {
                 this.pingCounter++;
                 var that = this;
                 var cnt = this.pingCounter;
                 setTimeout(function(){
                     if (that.pingCounter!=cnt) return;
-                    that.daemonStart();
+                    that.startDaemon();
                 }, 200);
             },
             /////////////////////////////////////////////////////////////////////////////////////////

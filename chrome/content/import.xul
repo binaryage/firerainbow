@@ -1,5 +1,4 @@
 <?xml-stylesheet href="chrome://rainbow/skin/import.css"?>
-
 <dialog
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   id="import-dialog"
@@ -7,10 +6,11 @@
   ondialogaccept="window.arguments[0].out = {code:document.getElementById('code').value}; return true;"
   persist="screenX screenY width height"
   windowtype="myDialogWindowType">
-
-  <script type="application/x-javascript" src="chrome://rainbow/content/import.js"/>
-  <hbox>
-  <label value="Please visit "/><label value="Rainbow Website" href="http://xrefresh.com/rainbow" class="text-link"/><label value=" and copy and paste some color preset code here"/>
-  </hbox>
-  <textbox flex="1" id="code" multiline="true" emptytext="Paste CSS code here" cols="80" rows="30"/>
+    <script type="application/x-javascript" src="chrome://rainbow/content/import.js"/>
+    <hbox>
+        <label value="Please visit "/>
+        <label value="Rainbow Website" href="http://xrefresh.com/presets" class="text-link"/>
+        <label value=" and copy&amp;paste some color preset code here"/>
+    </hbox>
+    <textbox flex="1" id="code" multiline="true" emptytext="Paste CSS code here" cols="80" rows="30"/>
 </dialog>
