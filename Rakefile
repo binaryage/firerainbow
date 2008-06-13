@@ -84,8 +84,8 @@ task :default do
 
   remove_dir(TMP) if File.exists?(TMP) # recursive!
   mkdir(TMP)
-  cp_dir(File.join(SRC, 'chrome'), TMP)
-  cp_dir(File.join(SRC, 'defaults'), TMP)
+  cp_dir(File.join(SRC, 'chrome'), File.join(TMP, "chrome"))
+  cp_dir(File.join(SRC, 'defaults'), File.join(TMP, "defaults"))
   dep(File.join(SRC, 'chrome.manifest'))
   dep(File.join(SRC, 'install.rdf'))
   dep(File.join(SRC, 'license.txt'))

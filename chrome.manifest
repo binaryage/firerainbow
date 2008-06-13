@@ -1,4 +1,5 @@
-content rainbow chrome/content/ xpcnativewrappers=no
+content rainbow chrome/content/
 skin rainbow classic/1.0 chrome/skin/
+locale rainbow en-US chrome/locale/
 
 overlay chrome://firebug/content/browserOverlay.xul chrome://rainbow/content/rainbow.xul
