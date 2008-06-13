@@ -58,7 +58,11 @@ FBL.ns(function() {
                 if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
                 var isScriptPanel = panel && panel.name == "script";
                 // stop daemon if leaving script panel and start it again if needed
-                if (isScriptPanel) this.startDaemon(); else this.stopDaemon();
+                var that = this;
+                if (isScriptPanel) setTimeout(function() {
+                    that.hookPanel(panel.context);
+                    that.resumeDaemon();
+                }, 1000); else this.stopDaemon();
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             initContext: function(context)
@@ -75,19 +79,6 @@ FBL.ns(function() {
                 this.valid = true;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            reattachContext: function(browser, context)
-            {
-                if (!this.valid) return;
-                // reattach is called when user decides to show firebug in separate window
-                // this is somewhat special situation, we just stop old daemon and start it again for newly hooked panel
-                // daemon control is robust and will perform no-op if there is nothing to do
-                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reattachContext", context);
-                this.stopDaemon();
-                Firebug.Module.reattachContext.apply(this, arguments);
-                this.hookPanel(context);
-                this.startDaemon();
-            },
-            /////////////////////////////////////////////////////////////////////////////////////////
             hookPanel: function(context)
             {
                 if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: hookPanel", context);
@@ -99,7 +90,7 @@ FBL.ns(function() {
                     chrome.onPanelNavigateOriginal = chrome.onPanelNavigate;
                     chrome.onPanelNavigate = function() {
                         var res = this.onPanelNavigateOriginal();
-                        that.startDaemon();
+                        that.resumeDaemon();
                         return res;
                     }
                 }
@@ -109,7 +100,17 @@ FBL.ns(function() {
                 this.applySyntaxColoring(code, this.panelBar1);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            startDaemon: function()
+            resumeDaemon: function()
+            {
+                // find active source box - here we will keep daemon state (parser state)
+                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: resumeDaemon");
+                var sourceBox = this.findVisibleSourceBox(this.panelBar1.browser);
+                if (!sourceBox) return;
+                if (!sourceBox.parser || sourceBox.colorized) return; // even not started
+                return this.startDaemon();                
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            startDaemon: function(silent)
             {
                 // daemon is here to perform colorization in background
                 // the goal is not to block Firebug functionality and don't hog CPU for too long
@@ -140,6 +141,10 @@ FBL.ns(function() {
                       if (!sourceBox.currentNode) {
                           that.stopDaemon();
                           sourceBox.colorized = true;
+                          // free up memory
+                          sourceBox.parser = undefined;
+                          sourceBox.stream = undefined;
+                          sourceBox.currentNode = undefined;
                           return;
                       }
                       // extract line code from node
@@ -219,6 +224,8 @@ FBL.ns(function() {
             {
                 // here we append <style id='rainbow-style-sheet' type='text/css'>/* Syntax coloring */</style> into head element
                 // this style element we will use to apply coloring rules to all script boxes in the panel
+                if (this.lookupStyleElement(panelBar)) return; // already done
+
                 var browser = panelBar.browser;
                 var doc = browser.contentDocument;
 
