@@ -18,8 +18,6 @@
         <em:creator>Antonin Hildebrand</em:creator>
         <em:contributor>Marijn Haverbeke</em:contributor>
         <em:homepageURL>http://xrefresh.com/rainbow</em:homepageURL>
-        <!--<em:optionsURL>chrome://rainbow/content/settings.xul</em:optionsURL>-->
         <em:iconURL>chrome://rainbow/skin/rainbow.png</em:iconURL>
-        <!--<em:updateURL>http://rainbow.com/rainbow/update.rdf</em:updateURL>-->
     </Description>
 </RDF>
