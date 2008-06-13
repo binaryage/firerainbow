@@ -1,4 +1,4 @@
-pref("extensions.rainbow.daemonInterval", 50);
+pref("extensions.rainbow.daemonInterval", 100);
 pref("extensions.rainbow.linesPerCall", 20);
 
 // code mirror

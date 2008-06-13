@@ -33,11 +33,28 @@ FBL.ns(function() {
         //
         Firebug.RainbowExtension = extend(Firebug.Module,
         {
+            valid: false,
             pings: 0,
 
             /////////////////////////////////////////////////////////////////////////////////////////
+            checkFirebugVersion: function()
+            {
+                var version = Firebug.getVersion();
+                if (!version) return false;
+                var a = version.split('.');
+                if (a.length<2) return false;
+                // we want Firebug version 1.2+ (including alphas/betas and other weird stuff)
+                return parseInt(a[0], 10)>=1 && parseInt(a[1], 10)>=2;
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
+            initialize: function()
+            {
+                return Firebug.Module.initialize.apply(this, arguments);
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
             showPanel: function(browser, panel)
             {
+                if (!this.valid) return;
                 if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
                 var isScriptPanel = panel && panel.name == "script";
                 // stop daemon if leaving script panel and start it again if needed
@@ -48,11 +65,19 @@ FBL.ns(function() {
             {
                 if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: initContext", context);
                 Firebug.Module.initContext.apply(this, arguments);
+                // check firebug version
+                if (!this.checkFirebugVersion())
+                {
+                    FBTrace.dumpProperties("Rainbow requires Firebug 1.2+ (your version is "+Firebug.getVersion()+")");
+                    return;
+                }
                 this.hookPanel(context);
+                this.valid = true;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             reattachContext: function(browser, context)
             {
+                if (!this.valid) return;
                 // reattach is called when user decides to show firebug in separate window
                 // this is somewhat special situation, we just stop old daemon and start it again for newly hooked panel
                 // daemon control is robust and will perform no-op if there is nothing to do
@@ -104,7 +129,7 @@ FBL.ns(function() {
                 if (!sourceBox.currentNode) sourceBox.currentNode = getNextByClass(sourceBox, 'sourceRowText'); // slower lookup
 
                 var linesPerCall = this.getPref('linesPerCall', 20);
-                var daemonInterval = this.getPref('daemonInterval', 50);
+                var daemonInterval = this.getPref('daemonInterval', 100);
 
                 // run daemon
                 var that = this;
@@ -160,6 +185,7 @@ FBL.ns(function() {
             /////////////////////////////////////////////////////////////////////////////////////////
             pingDaemon: function()
             {
+                if (!this.valid) return;
                 // trivial implementation of buffered deferred triggering of daemon
                 this.pings++;
                 var pingMarker = this.pings;
@@ -271,7 +297,7 @@ FBL.ns(function() {
                 }
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            // opens rainbow website in new tab
+            // opens rainbow website in a new tab
             visitWebsite: function()
             {
                 openNewTab(rainbowWebsite);
@@ -343,6 +369,7 @@ FBL.ns(function() {
             {
                 var doc = browser.contentDocument;
                 var styleElement = doc.getElementById('rainbow-style-sheet');
+                if (!styleElement) return;
                 return styleElement.sheet;
             },
             /////////////////////////////////////////////////////////////////////////////////////////
@@ -353,6 +380,7 @@ FBL.ns(function() {
                 setTimeout(function () {
                     var browser = that.context.chrome.getPanelBrowser(that.parentPanel);
                     var sheet = that.lookupStyleSheet(browser);
+                    if (!sheet) return;
                     var rules = that.getStyleSheetRules(that.context, sheet);
                     Firebug.RainbowExtension.saveSyntaxColoring(rules);
                 }, 1000);
@@ -363,10 +391,18 @@ FBL.ns(function() {
                 this.show();
             },
             /////////////////////////////////////////////////////////////////////////////////////////
+            reportOldFirebugVersion: function()
+            {
+                var report = escapeHTML("Rainbow requires Firebug 1.2+ (your have "+Firebug.getVersion()+").");
+                var report2 = 'Please update your Firebug extension to <a target="_blank" href="http://getfirebug.com">latest version</a>.';
+                this.panelNode.innerHTML = '<div class="warning">'+report+'</div><div class="warning">'+report2+'</div>';
+            },
+            /////////////////////////////////////////////////////////////////////////////////////////
             show: function()
             {
                 var browser = this.context.chrome.getPanelBrowser(this.parentPanel);
                 var sheet = this.lookupStyleSheet(browser);
+                if (!sheet) return this.reportOldFirebugVersion();
                 this.updateLocation(sheet);
             },
             /////////////////////////////////////////////////////////////////////////////////////////
