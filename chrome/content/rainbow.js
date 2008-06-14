@@ -14,11 +14,14 @@ FBL.ns(function() {
         const rainbowWebsite = "http://xrefresh.com/rainbow"
         const rainbowPrefDomain = "extensions.rainbow";
 
-        Firebug.TraceModule.DBG_RAINBOW = false;
-        var type = rainbowPrefs.getPrefType('extensions.firebug.DBG_RAINBOW');
-        if (type!=nsIPrefBranch.PREF_BOOL) try {
-            rainbowPrefs.setBoolPref('extensions.firebug.DBG_RAINBOW', false);
-        } catch(e) {}
+        if (Firebug.TraceModule)
+        {
+          Firebug.TraceModule.DBG_RAINBOW = false;
+          var type = rainbowPrefs.getPrefType('extensions.firebug.DBG_RAINBOW');
+          if (type!=nsIPrefBranch.PREF_BOOL) try {
+              rainbowPrefs.setBoolPref('extensions.firebug.DBG_RAINBOW', false);
+          } catch(e) {}
+        }
 
         // this monkey patching is here to simulate "javascript rendering finished" event
         FBL.getSourceLineRangeOriginal = FBL.getSourceLineRange;
@@ -55,7 +58,7 @@ FBL.ns(function() {
             showPanel: function(browser, panel)
             {
                 if (!this.valid) return;
-                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
+                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
                 var isScriptPanel = panel && panel.name == "script";
                 // stop daemon if leaving script panel and start it again if needed
                 var that = this;
@@ -67,12 +70,12 @@ FBL.ns(function() {
             /////////////////////////////////////////////////////////////////////////////////////////
             initContext: function(context)
             {
-                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: initContext", context);
+                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: initContext", context);
                 Firebug.Module.initContext.apply(this, arguments);
                 // check firebug version
                 if (!this.checkFirebugVersion())
                 {
-                    FBTrace.dumpProperties("Rainbow requires Firebug 1.2+ (your version is "+Firebug.getVersion()+")");
+                    if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow requires Firebug 1.2+ (your version is "+Firebug.getVersion()+")");
                     return;
                 }
                 this.hookPanel(context);
@@ -81,7 +84,7 @@ FBL.ns(function() {
             /////////////////////////////////////////////////////////////////////////////////////////
             hookPanel: function(context)
             {
-                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: hookPanel", context);
+                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: hookPanel", context);
                 var chrome = context ? context.chrome : FirebugChrome;
                 var that = this;
                 // monkey patching of chrome to get notified when (possibly) new sourceBox is available as result of switching to a new script
@@ -103,11 +106,11 @@ FBL.ns(function() {
             resumeDaemon: function()
             {
                 // find active source box - here we will keep daemon state (parser state)
-                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: resumeDaemon");
+                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: resumeDaemon");
                 var sourceBox = this.findVisibleSourceBox(this.panelBar1.browser);
                 if (!sourceBox) return;
                 if (!sourceBox.parser || sourceBox.colorized) return; // even not started
-                return this.startDaemon();                
+                return this.startDaemon();
             },
             /////////////////////////////////////////////////////////////////////////////////////////
             startDaemon: function(silent)
@@ -117,7 +120,7 @@ FBL.ns(function() {
                 // daemonInterval and linesPerCall properties define how intensive this background process should be
 
                 this.stopDaemon(); // never let run two or more daemons concruently!
-                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: startDaemon");
+                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: startDaemon");
 
                 // find active source box - here we will keep daemon state (parser state)
                 var sourceBox = this.findVisibleSourceBox(this.panelBar1.browser);
@@ -183,7 +186,7 @@ FBL.ns(function() {
             stopDaemon: function()
             {
                 if (!this.daemonTimer) return;
-                if (FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: stopDaemon");
+                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: stopDaemon");
                 clearInterval(this.daemonTimer);
                 this.daemonTimer = undefined;
             },
