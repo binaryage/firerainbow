@@ -14,7 +14,7 @@
             </Description>
         </em:targetApplication>
         <em:name>Rainbow for Firebug</em:name>
-        <em:description>Javascript syntax highligting for Firebug 1.2+</em:description>
+        <em:description>Javascript syntax highlighting for Firebug 1.2+</em:description>
         <em:creator>Antonin Hildebrand</em:creator>
         <em:contributor>Marijn Haverbeke</em:contributor>
         <em:homepageURL>http://xrefresh.com/rainbow</em:homepageURL>
