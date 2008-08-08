@@ -24,7 +24,10 @@ FBL.ns(function() {
         }
 
         // this monkey patching is here to simulate "javascript rendering finished" event
-        FBL.getSourceLineRangeOriginal = FBL.getSourceLineRange;
+        // some people reported this was broken at some circumstances
+        // see http://getsatisfaction.com/xrefresh/topics/too_many_recursions_problem_with_rainbow
+        if (!FBL.getSourceLineRangeOriginal) // prevent infinitive recursion if already initialized (when this happens?)
+          FBL.getSourceLineRangeOriginal = FBL.getSourceLineRange;
         FBL.getSourceLineRange = function(lines, min, max, maxLineNoChars)
         {
             Firebug.RainbowExtension.pingDaemon();
@@ -222,7 +225,7 @@ FBL.ns(function() {
                 return getChildByClass(sibling, 'sourceRowText');
             },
             /////////////////////////////////////////////////////////////////////////////////////////
-            // initializes syntax coloring heleprs for panel
+            // initializes syntax coloring helpers for panel
             initSyntaxColoring: function(panelBar)
             {
                 // here we append <style id='rainbow-style-sheet' type='text/css'>/* Syntax coloring */</style> into head element
