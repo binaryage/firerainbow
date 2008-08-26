@@ -341,7 +341,7 @@ FBL.ns(function() {
                         }
                         code = s.join('');
                     }
-                    this.setPref('coloring', code);
+                    this.setPref('syntaxColoring', code);
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
                 // opens dialog to import color preset (color preset is just a piece of CSS)
@@ -363,7 +363,14 @@ FBL.ns(function() {
                     var niceColors = ["red", "blue", "magenta", "brown", "black", 
                                       "darkgreen", "blueviolet", "cadetblue", "crimson", "darkgoldenrod",
                                       "darkgrey", "darkslateblue", "firebrick", "midnightblue", "orangered", "navy"];
-                    var code = ".panelNode-script { font-family: Monaco, Courier New; font-size: 11px; background-color: #fff; color: black; }"
+                    var code = ".panelNode-script { font-family: Monaco, Monospace, Courier New !important; font-size: 11px; background-color: #fff; color: black; }";
+                    code += " .sourceRow.hovered { background-color: #EEEEEE; }";
+                    code += " .sourceLine { border-bottom: 1px solid #EEEEEE; border-right: 1px solid #CCCCCC; background: #EEEEEE no-repeat 2px 0px; color: #888888; }";
+                    code += " .sourceLine:hover { text-decoration: none; }";
+                    code += " .scriptTooltip { border: 1px solid #CBE087; background: LightYellow; color: #000000; }";
+                    code += " .sourceRow[exeLine=\"true\"] { outline: 1px solid #D9D9B6; background-color: lightgoldenrodyellow; }";
+                    
+                    
                     for (var x in this.styleLibrary) {
                         if (this.styleLibrary.hasOwnProperty(x)) {
                             var color = niceColors[Math.floor(Math.random()*niceColors.length)];
