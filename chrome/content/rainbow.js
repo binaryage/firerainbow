@@ -41,6 +41,7 @@ FBL.ns(function() {
             {
                 valid: false,
                 pings: 0,
+                styleLibrary: {},
 
                 /////////////////////////////////////////////////////////////////////////////////////////
                 checkFirebugVersion: function()
@@ -223,6 +224,7 @@ FBL.ns(function() {
                                   // fast path for token without surrounding whitespaces
                                   line.push('<span class="'+token.style+'">'+escapeHTML(val)+'</span>');
                               }
+                              that.styleLibrary[token.style] = true;
                           });
                           // apply coloring to line
                           sourceBox.currentNode.innerHTML = line.join("");
@@ -357,6 +359,29 @@ FBL.ns(function() {
                     }
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
+                generateCodeFromLibrary: function() {
+                    var niceColors = ["red", "blue", "magenta", "brown", "black", 
+                                      "darkgreen", "blueviolet", "cadetblue", "crimson", "darkgoldenrod",
+                                      "darkgrey", "darkslateblue", "firebrick", "midnightblue", "orangered", "navy"];
+                    var code = ".panelNode-script { font-family: Monaco, Courier New; font-size: 11px; background-color: #fff; color: black; }"
+                    for (var x in this.styleLibrary) {
+                        if (this.styleLibrary.hasOwnProperty(x)) {
+                            var color = niceColors[Math.floor(Math.random()*niceColors.length)];
+                            code += " ."+x+" { color: "+color+"; }";
+                        }
+                    }
+                    return code;
+                },
+                /////////////////////////////////////////////////////////////////////////////////////////
+                // generates template color preset based on visited scripts
+                generatePreset: function()
+                {
+                    var code = this.generateCodeFromLibrary();
+                    this.applySyntaxColoring(code, this.panelBar1);
+                    this.saveSyntaxColoring(code);
+                    this.invalidatePanels();
+                },
+                /////////////////////////////////////////////////////////////////////////////////////////
                 // opens rainbow website in a new tab
                 visitWebsite: function()
                 {
@@ -472,6 +497,11 @@ FBL.ns(function() {
                         label: 'Import Color Preset ...',
                         nol10n: true,
                         command: bind(Firebug.RainbowExtension.importPreset, Firebug.RainbowExtension)
+                    },
+                    {
+                        label: 'Generate Color template',
+                        nol10n: true,
+                        command: bind(Firebug.RainbowExtension.generatePreset, Firebug.RainbowExtension)
                     },
                     '-',
                     {
