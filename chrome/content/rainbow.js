@@ -370,7 +370,6 @@ FBL.ns(function() {
                     code += " .scriptTooltip { border: 1px solid #CBE087; background: LightYellow; color: #000000; }";
                     code += " .sourceRow[exeLine=\"true\"] { outline: 1px solid #D9D9B6; background-color: lightgoldenrodyellow; }";
                     
-                    
                     for (var x in this.styleLibrary) {
                         if (this.styleLibrary.hasOwnProperty(x)) {
                             var color = niceColors[Math.floor(Math.random()*niceColors.length)];
