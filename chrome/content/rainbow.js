@@ -34,17 +34,6 @@ FBL.ns(function() {
               } catch(e) {}
             }
 
-            // this monkey patching is here to simulate "javascript rendering finished" event
-            // some people reported this was broken at some circumstances
-            // see http://getsatisfaction.com/xrefresh/topics/too_many_recursions_problem_with_rainbow
-            if (!FBL.getSourceLineRangeOriginal) // prevent infinitive recursion if already initialized (when this happens?)
-              FBL.getSourceLineRangeOriginal = FBL.getSourceLineRange;
-            FBL.getSourceLineRange = function(lines, min, max, maxLineNoChars)
-            {
-                Firebug.RainbowExtension.pingDaemon();
-                return FBL.getSourceLineRangeOriginal.apply(this, arguments);
-            };
-
             ////////////////////////////////////////////////////////////////////////
             // Firebug.RainbowExtension, here we go!
             //
@@ -74,6 +63,18 @@ FBL.ns(function() {
                     if (!this.valid) return;
                     if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
                     var isScriptPanel = panel && panel.name == "script";
+                    
+                    // this is a way how to get notified when new source is (possibly) available for coloring
+                    if (isScriptPanel && !panel.showSourceBoxOriginal)
+                    {
+                        panel.showSourceBoxOriginal = panel.showSourceBox;
+                        panel.showSourceBox = function(sourceBox) {
+                            res = this.showSourceBoxOriginal(sourceBox);
+                            Firebug.RainbowExtension.pingDaemon();
+                            return res;
+                        }
+                    }
+                    
                     // stop daemon if leaving script panel and start it again if needed
                     var that = this;
                     if (isScriptPanel) setTimeout(function() {
@@ -139,12 +140,30 @@ FBL.ns(function() {
                     // find active source box - here we will keep daemon state (parser state)
                     var sourceBox = this.findVisibleSourceBox(this.panelBar1.browser);
                     if (!sourceBox) return;
+                    if (!sourceBox.currentNode) sourceBox.currentNode = getNextByClass(sourceBox, 'sourceRowText'); // slower lookup
+                    if (!sourceBox.currentNode) return; // not yet ready
                     if (sourceBox.colorized) return; // already colorized
 
                     // init daemon state
                     if (!sourceBox.stream) sourceBox.stream = Editor.rainbowStream();
-                    if (!sourceBox.parser) sourceBox.parser = Editor.Parser.make(sourceBox.stream);
-                    if (!sourceBox.currentNode) sourceBox.currentNode = getNextByClass(sourceBox, 'sourceRowText'); // slower lookup
+                    
+                    if (!sourceBox.parser)
+                    {
+                        // advance currentNode to first non-whitespace line
+                        var firstLine = "";
+                        while (sourceBox.currentNode) {
+                            firstLine = sourceBox.currentNode.textContent;
+                            firstLine = firstLine.replace(/^\s*|\s*$/g,"");
+                            if (firstLine!="") break;
+                            sourceBox.currentNode = this.fastNextLineLookup(sourceBox.currentNode);
+                        }
+                        // determine what parser to use
+                        var parser = JSParser;
+                        // use HTML mixed parser if you encounter these substrings on first line
+                        if (firstLine.indexOf('<!DOCTYPE')!=-1 || firstLine.indexOf("<html")!=-1 || 
+                            firstLine.indexOf("<body")!=-1 || firstLine.indexOf("<head")!=-1) parser = HTMLMixedParser;
+                        sourceBox.parser = parser.make(sourceBox.stream);
+                    }
 
                     var linesPerCall = this.getPref('linesPerCall', 20);
                     var daemonInterval = this.getPref('daemonInterval', 100);
@@ -167,7 +186,7 @@ FBL.ns(function() {
                           // extract line code from node
                           // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
                           var code = sourceBox.currentNode.textContent+'\n';
-                          sourceBox.stream.reset(code);
+                          sourceBox.stream.reinit(code);
                           var line = []; // parts accumulated for current line
                           // process line tokens
                           forEach(sourceBox.parser, function(token) {

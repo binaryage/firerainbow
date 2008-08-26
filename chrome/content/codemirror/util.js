@@ -101,9 +101,8 @@ function isAncestor(node, child) {
 
 // The non-breaking space character.
 var nbsp = "\u00a0";
-// Unfortunately, IE's regexp matcher thinks non-breaking spaces
-// aren't whitespace.
-var realWhiteSpace = /^[\s\u00a0]*$/;
+var matching = {"{": "}", "[": "]", "(": ")",
+                "}": "{", "]": "[", ")": "("};
 
 // Standardize a few unportable event properties.
 function normalizeEvent(event) {
@@ -133,8 +132,16 @@ function addEventHandler(node, type, handler) {
   function wrapHandler(event) {
     handler(normalizeEvent(event || window.event));
   }
-  if (typeof node.addEventListener == "function")
+  if (typeof node.addEventListener == "function") {
     node.addEventListener(type, wrapHandler, false);
-  else
+    return function() { node.removeEventListener(type, wrapHandler, false); };
+  }
+  else {
     node.attachEvent("on" + type, wrapHandler);
+    return function() { node.detachEvent("on" + type, wrapHandler); };
+  }
+}
+
+function removeEventHandler(handler) {
+  handler();
 }

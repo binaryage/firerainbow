@@ -28,14 +28,13 @@
     equals: function(ch) {
       return ch === this.peek();
     },
-    notEquals: function(ch) {
+    endOfLine: function() {
       var next = this.peek();
-      return (next !== null && next != ch);
+      return next == null || next == "\n";
     }
   };
 
-  // Make a stream out of a single string. Not used by the editor, but
-  // very useful for testing your parser.
+  // Make a stream out of a single string.
   Editor.rainbowStream = function(string) {
     var data = {
         pos: 0,
@@ -43,10 +42,13 @@
         string: string
     };
     return update({
-      reset: function(string) {
+      reinit: function(string) {
         data.pos = 0;
         data.start = 0;
         data.string = string;
+      },
+      reset: function() {
+        data.pos = data.start;
       },
       peek: function() {
         if (data.pos < data.string.length)
