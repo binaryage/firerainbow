@@ -97,6 +97,15 @@ FBL.ns(function() {
                     this.valid = true;
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
+                // convert old code to be compatible with rainbow 0.7
+                convertOldCode: function(code, version)
+                {
+                    switch (version) {
+                        case "0.6": return code.replace(/\.(\w+)\s/g, ".js-$1 "); // conversion for mixed html coloring
+                    }
+                    return code;
+                },
+                /////////////////////////////////////////////////////////////////////////////////////////
                 hookPanel: function(context)
                 {
                     if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: hookPanel", context);
@@ -112,7 +121,15 @@ FBL.ns(function() {
                             return res;
                         }
                     }
-                    var code = this.getPref('coloring');
+                    var oldCode = this.getPref('coloring');
+                    if (oldCode)
+                    {
+                        // backward compatibility with rainbow 0.6
+                        this.clearPref('coloring');
+                        newCode = this.convertOldCode(oldCode, "0.6");
+                        this.setPref('syntaxColoring', newCode);
+                    }
+                    var code = this.getPref('syntaxColoring');
                     this.panelBar1 = chrome.$("fbPanelBar1");
                     this.initSyntaxColoring(this.panelBar1);
                     this.applySyntaxColoring(code, this.panelBar1);
@@ -371,6 +388,12 @@ FBL.ns(function() {
                         rainbowPrefs.setIntPref(prefName, value);
                     else if (type == nsIPrefBranch.PREF_BOOL)
                         rainbowPrefs.setBoolPref(prefName, value);
+                },
+                /////////////////////////////////////////////////////////////////////////////////////////
+                clearPref: function(name)
+                {
+                    var prefName = rainbowPrefDomain + "." + name;
+                    return rainbowPrefs.clearUserPref(prefName);
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
                 invalidatePanels: function()
