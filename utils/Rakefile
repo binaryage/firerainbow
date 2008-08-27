@@ -61,7 +61,7 @@ def detect_selector_from_scope(scope)
       return ".xml-processing"
     when "entity.name.tag", "meta.tag", "declaration.tag"
       return ".xml-tagname"
-    when "entity.other.attribute-name"
+    when /attribute-name/
       return ".xml-attname"
     when "???"
       return ".xml-text"
@@ -71,7 +71,7 @@ def detect_selector_from_scope(scope)
       return ".xml-cdata"
     when /property-value.css/
       return ".css-value"
-    when "meta.selector.css entity.name.tag", /attribute-name/
+    when "meta.selector.css entity.name.tag"
       return ".css-identifier"
     when /property-name.css/
       return ".css-colorcode"
@@ -158,15 +158,22 @@ def gen_rule(dict)
 end
 
 def gen_css(data, source)
-  res  = "/* #{data["name"]}"
-  res += " by #{data["author"]}" if data["author"]
-  res += ", converted from TextMate theme (#{source}) */\n\n"
+  desc  = "#{data["name"]}"
+  desc += " by #{data["author"]}" if data["author"]
+  desc += ", converted from TextMate theme (#{source})"
+  
+  res = "/* #{desc} */\n\n"
   
   data["settings"].each do |dict|
     res += gen_rule(dict)
   end
   
-  res 
+  {
+    "css" => res,
+    "name" => data["name"],
+    "author" => data["author"],
+    "description" => desc
+  }
 end
 
 def my_mkdir(dir)
@@ -174,20 +181,42 @@ def my_mkdir(dir)
   mkdir dir
 end
 
-task :convert do 
-  my_mkdir(DST_THEMES) unless File.exist?(DST_THEMES)
-  puts "Scanning #{dir_color(THEMES_DIR)} ..."
-  files = Dir.glob(File.join(THEMES_DIR, "**", "*.tmTheme"))
+def process(dir)
+  files = Dir.glob(File.join(dir, "**", "*.tmTheme"))
   files.each do |filename|
     basename = File.basename(filename)
     puts "  Converting #{file_color(basename)}"
     data = Plist::parse_xml(filename)
-    css = gen_css(data, basename)
-    res = File.join(DST_THEMES, basename + ".css")
+    preset = gen_css(data, basename)
+    preset["basename"] = basename
+    yield preset
+  end
+end
+
+task :convert do 
+  my_mkdir(DST_THEMES) unless File.exist?(DST_THEMES)
+  puts "Scanning #{dir_color(THEMES_DIR)} ..."
+  process(THEMES_DIR) do |preset|
+    res = File.join(DST_THEMES, preset["basename"] + ".css")
     File.open(res, "w") do |file|
-      file.write css
+      file.write preset["css"]
     end
   end
+end
+
+task :sql do
+  puts "Generating sql ..."
+  
+  res = ""
+  process(THEMES_DIR) do |preset|
+    name = preset["name"].downcase.gsub(/[\(\)&]/, "").gsub(/[ \t]/, "_").gsub(/'/, "''")
+    title = preset["name"].gsub(/'/, "''")
+    desc = preset["description"].gsub(/'/, "''")
+    code = preset["css"].gsub(/\n/, "\\r\\n").gsub(/'/, "''").gsub(/"/, "&quot;")
+    res += "('#{name}', '#{title}', '#{desc}', '#{code}', '2008-06-14 18:19:36', '2008-06-14 18:24:04'),\n"
+  end
+  
+  puts res
 end
 
 task :default => :convert
