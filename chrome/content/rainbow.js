@@ -24,6 +24,8 @@ FBL.ns(function() {
 
             const rainbowWebsite = "http://xrefresh.com/rainbow"
             const rainbowPrefDomain = "extensions.rainbow";
+            
+            const currentCodeVersion = 2;
 
             if (Firebug.TraceModule)
             {
@@ -98,13 +100,20 @@ FBL.ns(function() {
                     this.valid = true;
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
-                // convert old code to be compatible with rainbow 0.7
+                // convert old code to be compatible with current rainbow
                 convertOldCode: function(code, version)
                 {
                     switch (version) {
-                        case "0.6": return code.replace(/\.(\w+)\s/g, ".js-$1 "); // conversion for mixed html coloring
+                        case 1: return code.replace(/\.(\w+)\s*\{/g, ".js-$1 {"); // conversion for mixed html coloring
                     }
                     return code;
+                },
+                /////////////////////////////////////////////////////////////////////////////////////////
+                getCodeVersion: function(code)
+                {
+                    var vc = code.match(/\/\* version:(.*) \*\//);
+                    if (!vc) return 1;
+                    return parseInt(vc[1]);
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
                 hookPanel: function(context)
@@ -122,18 +131,23 @@ FBL.ns(function() {
                             return res;
                         }
                     }
-                    var oldCode = this.getPref('coloring');
-                    if (oldCode)
+                    var code = this.getPref('coloring');
+                    var version = this.getCodeVersion(code);
+                    if (version<currentCodeVersion)
                     {
-                        // backward compatibility with rainbow 0.6
-                        this.clearPref('coloring');
-                        newCode = this.convertOldCode(oldCode, "0.6");
-                        this.setPref('syntaxColoring', newCode);
+                        // backward compatibility with old rainbow versions
+                        code = this.convertOldCode(code, version);
+                        this.storeCode(code);
                     }
-                    var code = this.getPref('syntaxColoring');
                     this.panelBar1 = chrome.$("fbPanelBar1");
                     this.initSyntaxColoring(this.panelBar1);
                     this.applySyntaxColoring(code, this.panelBar1);
+                },
+                /////////////////////////////////////////////////////////////////////////////////////////
+                storeCode: function(code)
+                {
+                    var code = "/* version:"+currentCodeVersion+" */\n"+code;
+                    this.setPref('coloring', code);
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
                 resumeDaemon: function()
@@ -341,7 +355,7 @@ FBL.ns(function() {
                         }
                         code = s.join('');
                     }
-                    this.setPref('syntaxColoring', code);
+                    this.storeCode(code);
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
                 // opens dialog to import color preset (color preset is just a piece of CSS)
