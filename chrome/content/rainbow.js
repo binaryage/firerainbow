@@ -380,7 +380,7 @@ FBL.ns(function() {
                 },
                 /////////////////////////////////////////////////////////////////////////////////////////
                 // generates template color preset based on visited scripts
-                generatePreset: function()
+                randomizePreset: function()
                 {
                     var code = this.generateCodeFromLibrary();
                     this.applySyntaxColoring(code, this.panelBar1);
@@ -505,9 +505,9 @@ FBL.ns(function() {
                         command: bind(Firebug.RainbowExtension.importPreset, Firebug.RainbowExtension)
                     },
                     {
-                        label: 'Generate Color template',
+                        label: 'Randomize Color Preset',
                         nol10n: true,
-                        command: bind(Firebug.RainbowExtension.generatePreset, Firebug.RainbowExtension)
+                        command: bind(Firebug.RainbowExtension.randomizePreset, Firebug.RainbowExtension)
                     },
                     '-',
                     {
