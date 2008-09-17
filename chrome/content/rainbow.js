@@ -16,7 +16,7 @@ FBL.ns(function() {
             if (!cssPanelAvailable)
             {
                 var consoleService = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
-                consoleService.logStringMessage("Rainbow requires Firebug 1.2+ (your have "+Firebug.getVersion()+").");
+                consoleService.logStringMessage("Rainbow requires Firebug 1.3+ (your have "+Firebug.getVersion()+").");
                 consoleService.logStringMessage('Please update your Firebug extension to latest version (http://getfirebug.com).');
             }
             else
@@ -41,51 +41,33 @@ FBL.ns(function() {
                     } catch(e) {}
                 }
 
-                FBL.getSourceLineRange = function(lines, min, max, maxLineNoChars)
-                {
-                    var html = [];
-                    for (var i = min; i <= max; ++i)
-                    {
-                        // Make sure all line numbers are the same width (with a fixed-width font)
-                        var lineNo = i + "";
-                        while (lineNo.length < maxLineNoChars)
-                            lineNo = " " + lineNo;
-
-                        var line;
-                        if (lines.colorizedLines && lines.colorizedLines[i-1]) 
-                            line = lines.colorizedLines[i-1]; 
-                        else 
-                            line = escapeHTML(lines[i-1]);
-
-                        html.push(
-                            '<div class="sourceRow"><a class="sourceLine">',
-                            lineNo,
-                            '</a><span class="sourceRowText">',
-                            line,
-                            '</span></div>'
-                        );
-                    }
-                    return html.join("");
-                };
-
-                Firebug.ScriptPanel.prototype.reViewOriginal = Firebug.ScriptPanel.prototype.reView;
-                Firebug.ScriptPanel.prototype.reView = function(sourceBox) {
-                    var scrollTop = sourceBox.scrollTop;
-                    var scrollStep = sourceBox.lineHeight;
-                    if (!scrollStep || scrollStep < 1) {
-                        var newBottomLine = 0;
-                    } else {
-                        var newBottomLine = Math.round((scrollTop + sourceBox.clientHeight)/scrollStep);
-                    }
-                    Firebug.RainbowExtension.colorizeSourceBox(this, sourceBox, newBottomLine);
-                    return this.reViewOriginal(sourceBox);
-                };
-
                 ////////////////////////////////////////////////////////////////////////
-                // Firebug.RainbowExtension, here we go!
+                // Firebug.RainbowModule, here we go!
                 //
-                Firebug.RainbowExtension = extend(Firebug.Module,
-                {
+                Firebug.RainbowExtension = extend(Firebug.Extension, {
+                    onApplyDecorator: function(sourceBox) {
+                        if (!sourceBox.rainbowPatched) {
+                            sourceBox.rainbowPatched = true;
+                            sourceBox.getLineAsHTML = function(lineNo) {
+                                if (this.colorizedLines) {
+                                    var line = this.colorizedLines[lineNo];
+                                    if (line!=undefined) return line;
+                                }
+                                return escapeHTML(this.lines[lineNo]);
+                            };
+                        }
+                        if (sourceBox.preventRainbowRecursion) {
+                            sourceBox.preventRainbowRecursion = undefined;
+                            return;
+                        }
+                        Firebug.RainbowModule.colorizeSourceBox(sourceBox);
+                    }
+                });
+                
+                ////////////////////////////////////////////////////////////////////////
+                // Firebug.RainbowModule, here we go!
+                //
+                Firebug.RainbowModule = extend(Firebug.Module, {
                     valid: false,
                     pings: 0,
                     styleLibrary: {},
@@ -97,8 +79,8 @@ FBL.ns(function() {
                         if (!version) return false;
                         var a = version.split('.');
                         if (a.length<2) return false;
-                        // we want Firebug version 1.2+ (including alphas/betas and other weird stuff)
-                        return parseInt(a[0], 10)>=1 && parseInt(a[1], 10)>=2;
+                        // we want Firebug version 1.3+ (including alphas/betas and other weird stuff)
+                        return parseInt(a[0], 10)>=1 && parseInt(a[1], 10)>=3;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     initialize: function()
@@ -110,6 +92,8 @@ FBL.ns(function() {
                     {
                         if (!this.valid) return;
                         if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
+                        var isScriptPanel = panel && panel.name == "script";
+                        if (isScriptPanel) this.actualScriptPanel = panel;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     initContext: function(context)
@@ -119,11 +103,17 @@ FBL.ns(function() {
                         // check firebug version
                         if (!this.checkFirebugVersion())
                         {
-                            if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow requires Firebug 1.2+ (your version is "+Firebug.getVersion()+")");
+                            if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow requires Firebug 1.3+ (your version is "+Firebug.getVersion()+")");
                             return;
                         }
                         this.hookPanel(context);
                         this.valid = true;
+                    },
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    reattachContext: function(browser, context)
+                    {
+                        Firebug.Module.reattachContext.apply(this, arguments);
+                        this.hookPanel(context);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     // convert old code to be compatible with current rainbow
@@ -141,9 +131,9 @@ FBL.ns(function() {
                         if (!vc) return 1;
                         return parseInt(vc[1], 10);
                     },
-                    colorizeSourceBox: function(panel, sourceBox, newBottomLine) {
+                    colorizeSourceBox: function(sourceBox) {
                         if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: colorizeSourceBox", sourceBox);
-                        this.pingDaemon(panel, sourceBox, newBottomLine);
+                        this.pingDaemon(sourceBox);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     hookPanel: function(context)
@@ -169,26 +159,25 @@ FBL.ns(function() {
                         this.setPref('coloring', code);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
-                    startDaemon: function(panel, sourceBox, newBottomLine)
+                    startDaemon: function(sourceBox)
                     {
                         // daemon is here to perform colorization in background
                         // the goal is not to block Firebug functionality and don't hog CPU for too long
                         // daemonInterval and linesPerCall properties define how intensive this background process should be
-                        this.bottomLine = newBottomLine;
-                        this.lastScriptPanel = panel;
                         if (this.currentSourceBox===sourceBox) return;
 
                         this.stopDaemon(); // never let run two or more daemons concruently!
-                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: startDaemon");
 
                         // find active source box - here we will keep daemon state (parser state)
                         if (!sourceBox) return;
                         if (!sourceBox.lines) return;
                         if (sourceBox.colorized) return; // already colorized
+
+                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: startDaemon", sourceBox);
                         
                         this.currentSourceBox = sourceBox;
                         if (sourceBox.lineToBeColorized==undefined) sourceBox.lineToBeColorized = 0;
-                        if (!sourceBox.lines.colorizedLines) sourceBox.lines.colorizedLines = [];
+                        if (!sourceBox.colorizedLines) sourceBox.colorizedLines = [];
 
                         // init daemon state
                         if (!sourceBox.stream) sourceBox.stream = Editor.rainbowStream();
@@ -224,7 +213,10 @@ FBL.ns(function() {
                                     // finish if no more nodes
                                     if (currentLineNo >= sourceBox.lines.length) {
                                         // do review to be sure actual view gets finaly colorized
-                                        if (that.lastScriptPanel) that.lastScriptPanel.reView(sourceBox);
+                                        if (that.actualScriptPanel) {
+                                            sourceBox.preventRainbowRecursion = true;
+                                            that.actualScriptPanel.reView(sourceBox);
+                                        }
                                         that.stopDaemon();
                                         sourceBox.colorized = true;
                                         // free up memory
@@ -249,15 +241,18 @@ FBL.ns(function() {
                                     );
 
                                     // apply coloring to line
-                                    sourceBox.lines.colorizedLines.push(line.join(""));
+                                    sourceBox.colorizedLines.push(line.join(""));
 
                                     // move for next line
                                     sourceBox.lineToBeColorized++;
                                 }
                                 
-                                if (sourceBox.lineToBeColorized>=that.bottomLine && sourceBox.lineToBeColorized-linesPerCall<=that.bottomLine) {
+                                if (sourceBox.lineToBeColorized>=sourceBox.lastViewableLine && sourceBox.lineToBeColorized-linesPerCall<=sourceBox.lastViewableLine) {
                                     // just crossed actual view, do a reView
-                                    if (that.lastScriptPanel) that.lastScriptPanel.reView(sourceBox);
+                                    if (that.actualScriptPanel) { 
+                                        sourceBox.preventRainbowRecursion = true;
+                                        that.actualScriptPanel.reView(sourceBox);
+                                    }
                                 }
                             },
                         daemonInterval);
@@ -270,11 +265,10 @@ FBL.ns(function() {
                         clearInterval(this.daemonTimer);
                         this.daemonTimer = undefined;
                         this.currentSourceBox = undefined;
-                        this.bottomLine = undefined;
-                        this.lastScriptPanel = undefined;
+                        this.actualScriptPanel = undefined;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
-                    pingDaemon: function(panel, sourceBox, newBottomLine)
+                    pingDaemon: function(sourceBox)
                     {
                         if (!this.valid) return;
                         
@@ -284,7 +278,7 @@ FBL.ns(function() {
                         var that = this;
                         setTimeout(function(){
                             if (that.pings!=pingMarker) return;
-                            that.startDaemon(panel, sourceBox, newBottomLine);
+                            that.startDaemon(sourceBox);
                         }, 200);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
@@ -457,9 +451,9 @@ FBL.ns(function() {
                 /////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////
 
-                function SyntaxColoringPanel() {}
+                Firebug.SyntaxColoringPanel = function() {};
 
-                SyntaxColoringPanel.prototype = extend(Firebug.CSSStyleSheetPanel.prototype,{
+                Firebug.SyntaxColoringPanel.prototype = extend(Firebug.CSSStyleSheetPanel.prototype,{
                     name: "rainbow",
                     title: "Colors",
                     parentPanel: "script",
@@ -493,7 +487,7 @@ FBL.ns(function() {
                             var sheet = that.lookupStyleSheet(browser);
                             if (!sheet) return;
                             var rules = that.getStyleSheetRules(that.context, sheet);
-                            Firebug.RainbowExtension.saveSyntaxColoring(rules);
+                            Firebug.RainbowModule.saveSyntaxColoring(rules);
                         }, 1000);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
@@ -516,25 +510,26 @@ FBL.ns(function() {
                         {
                             label: 'Import Color Preset ...',
                             nol10n: true,
-                            command: bind(Firebug.RainbowExtension.importPreset, Firebug.RainbowExtension)
+                            command: bind(Firebug.RainbowModule.importPreset, Firebug.RainbowModule)
                         },
                         {
                             label: 'Randomize Color Preset',
                             nol10n: true,
-                            command: bind(Firebug.RainbowExtension.randomizePreset, Firebug.RainbowExtension)
+                            command: bind(Firebug.RainbowModule.randomizePreset, Firebug.RainbowModule)
                         },
                         '-',
                         {
                             label: 'Rainbow Website ...',
                             nol10n: true,
-                            command: bind(Firebug.RainbowExtension.visitWebsite, Firebug.RainbowExtension)
+                            command: bind(Firebug.RainbowModule.visitWebsite, Firebug.RainbowModule)
                         }
                         ];
                     }
                 });
 
-                Firebug.registerModule(Firebug.RainbowExtension);
-                Firebug.registerPanel(SyntaxColoringPanel);
+                Firebug.registerModule(Firebug.RainbowModule);
+                Firebug.registerExtension(Firebug.RainbowExtension);
+                Firebug.registerPanel(Firebug.SyntaxColoringPanel);
                 }
             }
         }
