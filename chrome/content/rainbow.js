@@ -42,10 +42,12 @@ FBL.ns(function() {
                 }
 
                 ////////////////////////////////////////////////////////////////////////
-                // Firebug.RainbowModule, here we go!
+                // Firebug.RainbowExtension
                 //
                 Firebug.RainbowExtension = extend(Firebug.Extension, {
+                    // this is called whenever script viewport is about to be rendered
                     onApplyDecorator: function(sourceBox) {
+                        // patch sourcebox render functionality
                         if (!sourceBox.rainbowPatched) {
                             sourceBox.rainbowPatched = true;
                             sourceBox.getLineAsHTML = function(lineNo) {
@@ -56,16 +58,18 @@ FBL.ns(function() {
                                 return escapeHTML(this.lines[lineNo]);
                             };
                         }
+                        // prevent recursion in case we call reView
                         if (sourceBox.preventRainbowRecursion) {
                             sourceBox.preventRainbowRecursion = undefined;
                             return;
                         }
+                        // start coloring (if not already in progress or done)
                         Firebug.RainbowModule.colorizeSourceBox(sourceBox);
                     }
                 });
                 
                 ////////////////////////////////////////////////////////////////////////
-                // Firebug.RainbowModule, here we go!
+                // Firebug.RainbowModule
                 //
                 Firebug.RainbowModule = extend(Firebug.Module, {
                     valid: false,
@@ -451,9 +455,9 @@ FBL.ns(function() {
                 /////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////
 
-                Firebug.SyntaxColoringPanel = function() {};
+                Firebug.RainbowSyntaxColoringEditorPanel = function() {};
 
-                Firebug.SyntaxColoringPanel.prototype = extend(Firebug.CSSStyleSheetPanel.prototype,{
+                Firebug.RainbowSyntaxColoringEditorPanel.prototype = extend(Firebug.CSSStyleSheetPanel.prototype,{
                     name: "rainbow",
                     title: "Colors",
                     parentPanel: "script",
@@ -529,7 +533,7 @@ FBL.ns(function() {
 
                 Firebug.registerModule(Firebug.RainbowModule);
                 Firebug.registerExtension(Firebug.RainbowExtension);
-                Firebug.registerPanel(Firebug.SyntaxColoringPanel);
+                Firebug.registerPanel(Firebug.RainbowSyntaxColoringEditorPanel);
                 }
             }
         }
