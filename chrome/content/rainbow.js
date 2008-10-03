@@ -97,7 +97,7 @@ FBL.ns(function() {
                         if (!this.valid) return;
                         if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
                         var isScriptPanel = panel && panel.name == "script";
-                        if (isScriptPanel) this.actualScriptPanel = panel;
+                        this.actualScriptPanel = isScriptPanel?panel:undefined;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     initContext: function(context)
@@ -214,11 +214,12 @@ FBL.ns(function() {
                                 var count = linesPerCall;
                                 while (count--) {
                                     var currentLineNo = sourceBox.lineToBeColorized;
-                                    // finish if no more nodes
+                                    // finish if no more lines
                                     if (currentLineNo >= sourceBox.lines.length) {
                                         // do review to be sure actual view gets finaly colorized
                                         if (that.actualScriptPanel) {
                                             sourceBox.preventRainbowRecursion = true;
+                                            if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reView!", sourceBox);
                                             that.actualScriptPanel.reView(sourceBox);
                                         }
                                         that.stopDaemon();
@@ -255,6 +256,7 @@ FBL.ns(function() {
                                     // just crossed actual view, do a reView
                                     if (that.actualScriptPanel) { 
                                         sourceBox.preventRainbowRecursion = true;
+                                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reView!", sourceBox);
                                         that.actualScriptPanel.reView(sourceBox);
                                     }
                                 }
@@ -269,7 +271,6 @@ FBL.ns(function() {
                         clearInterval(this.daemonTimer);
                         this.daemonTimer = undefined;
                         this.currentSourceBox = undefined;
-                        this.actualScriptPanel = undefined;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     pingDaemon: function(sourceBox)
