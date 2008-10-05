@@ -264,6 +264,14 @@ FBL.ns(function() {
                                     }
                                 } catch (ex) {
                                     if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: exception", ex);
+                                    // stop daemon in this exceptional case
+                                    that.stopDaemon();
+                                    sourceBox.colorized = true;
+                                    SourceBox.colorizationFailed = true;
+                                    // free up memory
+                                    sourceBox.parser = undefined;
+                                    sourceBox.stream = undefined;
+                                    return;
                                 }
                             },
                         daemonInterval);
