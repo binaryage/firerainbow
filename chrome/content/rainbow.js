@@ -211,55 +211,59 @@ FBL.ns(function() {
                         var that = this;
                         this.daemonTimer = setInterval(
                             function() {
-                                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.sysout("Rainbow: daemon processing lines "+sourceBox.lineToBeColorized+"-"+(sourceBox.lineToBeColorized+linesPerCall));
-                                var count = linesPerCall;
-                                while (count--) {
-                                    var currentLineNo = sourceBox.lineToBeColorized;
-                                    // finish if no more lines
-                                    if (currentLineNo >= sourceBox.lines.length) {
-                                        // do review to be sure actual view gets finaly colorized
-                                        if (that.actualScriptPanel) {
+                                try {
+                                    if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.sysout("Rainbow: daemon processing lines "+sourceBox.lineToBeColorized+"-"+(sourceBox.lineToBeColorized+linesPerCall));
+                                    var count = linesPerCall;
+                                    while (count--) {
+                                        var currentLineNo = sourceBox.lineToBeColorized;
+                                        // finish if no more lines
+                                        if (currentLineNo >= sourceBox.lines.length) {
+                                            // do review to be sure actual view gets finaly colorized
+                                            if (that.actualScriptPanel) {
+                                                sourceBox.preventRainbowRecursion = true;
+                                                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reView!", sourceBox);
+                                                that.actualScriptPanel.reView(sourceBox);
+                                            }
+                                            that.stopDaemon();
+                                            sourceBox.colorized = true;
+                                            // free up memory
+                                            sourceBox.parser = undefined;
+                                            sourceBox.stream = undefined;
+                                            return;
+                                        }
+                                        // extract line code from node
+                                        // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
+                                        var code = sourceBox.lines[currentLineNo]+"\n";
+                                        sourceBox.stream.reinit(code);
+                                        var line = [];
+                                        // parts accumulated for current line
+                                        // process line tokens
+                                        forEach(sourceBox.parser,
+                                            function(token) {
+                                                // colorize token
+                                                var val = token.value;
+                                                line.push('<span class="' + token.style + '">' + escapeHTML(val) + '</span>');
+                                                that.styleLibrary[token.style] = true;
+                                            }
+                                        );
+
+                                        // apply coloring to line
+                                        sourceBox.colorizedLines.push(line.join(""));
+
+                                        // move for next line
+                                        sourceBox.lineToBeColorized++;
+                                    }
+                                
+                                    if (sourceBox.lineToBeColorized>=sourceBox.lastViewableLine && sourceBox.lineToBeColorized-linesPerCall<=sourceBox.lastViewableLine) {
+                                        // just crossed actual view, do a reView
+                                        if (that.actualScriptPanel) { 
                                             sourceBox.preventRainbowRecursion = true;
                                             if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reView!", sourceBox);
                                             that.actualScriptPanel.reView(sourceBox);
                                         }
-                                        that.stopDaemon();
-                                        sourceBox.colorized = true;
-                                        // free up memory
-                                        sourceBox.parser = undefined;
-                                        sourceBox.stream = undefined;
-                                        return;
                                     }
-                                    // extract line code from node
-                                    // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
-                                    var code = sourceBox.lines[currentLineNo]+"\n";
-                                    sourceBox.stream.reinit(code);
-                                    var line = [];
-                                    // parts accumulated for current line
-                                    // process line tokens
-                                    forEach(sourceBox.parser,
-                                        function(token) {
-                                            // colorize token
-                                            var val = token.value;
-                                            line.push('<span class="' + token.style + '">' + escapeHTML(val) + '</span>');
-                                            that.styleLibrary[token.style] = true;
-                                        }
-                                    );
-
-                                    // apply coloring to line
-                                    sourceBox.colorizedLines.push(line.join(""));
-
-                                    // move for next line
-                                    sourceBox.lineToBeColorized++;
-                                }
-                                
-                                if (sourceBox.lineToBeColorized>=sourceBox.lastViewableLine && sourceBox.lineToBeColorized-linesPerCall<=sourceBox.lastViewableLine) {
-                                    // just crossed actual view, do a reView
-                                    if (that.actualScriptPanel) { 
-                                        sourceBox.preventRainbowRecursion = true;
-                                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reView!", sourceBox);
-                                        that.actualScriptPanel.reView(sourceBox);
-                                    }
+                                } catch (ex) {
+                                    if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: exception", ex);
                                 }
                             },
                         daemonInterval);

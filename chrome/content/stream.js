@@ -31,6 +31,15 @@
     endOfLine: function() {
       var next = this.peek();
       return next == null || next == "\n";
+    },
+    matches: function(string, caseSensitive) {
+      for (var i = 0; i < string.length; i++) {
+        var ch = this.peek();
+        if (!ch || string.charAt(i) != (caseSensitive ? ch : ch.toLowerCase()))
+          return false;
+        this.next();
+      }
+      return true;
     }
   };
 
@@ -69,6 +78,9 @@
         var result = data.string.slice(data.start, data.pos);
         data.start = data.pos;
         return result;
+      },
+      push: function(str) {
+        data.string = data.string.slice(0, data.pos) + str + data.string.slice(data.pos);
       }
     }, base);
   }

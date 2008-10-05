@@ -4,17 +4,8 @@ var HTMLMixedParser = Editor.Parser = (function() {
   XMLParser.configure({useHTMLKludges: true});
 
   function stringAhead(stream, string) {
-    function matchString() {
-      for (var i = 0; i < string.length; i++) {
-        var ch = stream.peek();
-        if (!ch || string.charAt(i) != ch.toLowerCase()) return false;
-        stream.next();
-      }
-      return true;
-    }
-
     stream.nextWhile(matcher(/[\s\u00a0]/));
-    var found =  matchString();
+    var found = stream.matches(string, false);
     stream.reset();
     return found;
   }
@@ -46,7 +37,13 @@ var HTMLMixedParser = Editor.Parser = (function() {
           iter.next = top;
           return top();
         }
-        return localParser.next();
+        var token = localParser.next();
+        var lt = token.value.lastIndexOf("<"), sz = Math.min(token.value.length - lt, tag.length);
+        if (lt != -1 && token.value.slice(lt, lt + sz).toLowerCase() == tag.slice(0, sz) && stringAhead(stream, tag.slice(sz))) {
+          stream.push(token.value.slice(lt));
+          token.value = token.value.slice(0, lt);
+        }
+        return token;
       };
     }
 
