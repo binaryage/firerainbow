@@ -1,7 +1,7 @@
 Rainbow for Firebug
 ===================
 
-Rainbow brings javascript syntax highlighting to [Firebug 1.2][firebug].
+Rainbow brings javascript syntax highlighting to [Firebug 1.3][firebug].
 ![screenshot][screenshot]
 
 Read more info on [Rainbow Homepage][homepage].
@@ -9,7 +9,7 @@ Read more info on [Rainbow Homepage][homepage].
 Prerequisites
 -------------
 
-You definitely need [Firebug 1.2][firebug].
+You definitely need [Firebug 1.3][firebug].
 
 Installation
 ------------
@@ -27,7 +27,8 @@ Sample [color presets are here][presets]. Your preset modifications [are welcome
 Current State
 -------------
 
-Version 0.7 is tested to work with official Firebug 1.2.0.
+Version 0.8 is tested to work with alpha Firebug 1.3
+Version 0.7 is tested to work with official Firebug 1.2
 
 Contributors
 ------------
@@ -41,6 +42,10 @@ The support [forum is here][support] (powered by [getsatisfaction.com][satisfact
 
 History
 -------
+
+* 0.8 (to be released) 
+  * reimplemented for changes in Firebug 1.3 (not compatible with Firebug 1.2 anymore)
+  * added "Reset to default Color Preset" feature
 
 * 0.7 (27.08.2008) 
   * added mixed HTML/CSS/JS coloring
