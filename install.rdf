@@ -2,7 +2,7 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:em="http://www.mozilla.org/2004/em-rdf#">
     <Description about="urn:mozilla:install-manifest">
-        <em:id>rainbow@xrefresh.com</em:id>
+        <em:id>firerainbow@hildebrand.cz</em:id>
         <em:version>0.8</em:version>
         <em:type>2</em:type>
         <!-- Firefox -->
@@ -10,14 +10,14 @@
             <Description>
                 <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
                 <em:minVersion>2.0</em:minVersion>
-                <em:maxVersion>3.*.*</em:maxVersion>
+                <em:maxVersion>3.1b2pre</em:maxVersion>
             </Description>
         </em:targetApplication>
         <em:name>Rainbow for Firebug</em:name>
         <em:description>Javascript syntax highlighting for Firebug 1.3</em:description>
         <em:creator>Antonin Hildebrand</em:creator>
         <em:contributor>Marijn Haverbeke</em:contributor>
-        <em:homepageURL>http://xrefresh.com/rainbow</em:homepageURL>
+        <em:homepageURL>http://github.com/woid/firerainbow</em:homepageURL>
         <em:iconURL>chrome://rainbow/skin/rainbow.png</em:iconURL>
     </Description>
 </RDF>

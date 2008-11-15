@@ -1,2 +1,5 @@
+.gitignore
 build
 tmp
+.DS_Store
+Thumbs.db
