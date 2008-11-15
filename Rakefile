@@ -1,6 +1,6 @@
 # mac users should have all in place
 # 1. $gem install rake
-# 2. $cd some/path/rainbow4firebug
+# 2. $cd some/path/firerainbow
 # 3. $rake
 #
 # win users:
@@ -13,7 +13,7 @@
 # 6. >gem install win32console
 # 7. >gem install rake
 # 8. install zip to system path (http://www.info-zip.org/Zip.html)
-# 9. >cd some\path\rainbow4firebug
+# 9. >cd some\path\firerainbow
 #10. >rake
 
 ROOT = File.expand_path('.')

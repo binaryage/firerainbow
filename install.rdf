@@ -13,7 +13,7 @@
                 <em:maxVersion>3.1b2pre</em:maxVersion>
             </Description>
         </em:targetApplication>
-        <em:name>Rainbow for Firebug</em:name>
+        <em:name>FireRainbow</em:name>
         <em:description>Javascript syntax highlighting for Firebug 1.3</em:description>
         <em:creator>Antonin Hildebrand</em:creator>
         <em:contributor>Marijn Haverbeke</em:contributor>

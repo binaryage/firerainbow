@@ -9,7 +9,7 @@
     <script type="application/x-javascript" src="chrome://rainbow/content/import.js"/>
     <hbox>
         <label value="Please visit "/>
-        <label value="Rainbow Website" href="http://xrefresh.com/presets" class="text-link"/>
+        <label value="FireRainbow Website" href="http://xrefresh.com/presets" class="text-link"/>
         <label value=" and copy&amp;paste some color preset code here"/>
     </hbox>
     <textbox flex="1" id="code" multiline="true" emptytext="Paste CSS code here" cols="80" rows="30"/>
