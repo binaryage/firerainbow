@@ -109,7 +109,7 @@ task :default do
   dep(File.join(SRC, 'license.txt'))
   my_mkdir(DST) unless File.exist?(DST)
 
-  res = "#{DST}/rainbow-#{version}.xpi"
+  res = "#{DST}/firerainbow-#{version}.xpi"
   File.unlink(res) if File.exists?(res)
   puts "#{cmd_color('zipping')} #{file_color(res)}"
   owd = Dir.getwd()

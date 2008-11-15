@@ -60,7 +60,7 @@ History
 
 [screenshot]: http://github.com/woid/firerainbow/tree/master/support/screenshot.png?raw=true "FireRainbow"
 [firebug]: https://addons.mozilla.org/en-US/firefox/addon/1843
-[rainbow]: https://addons.mozilla.org/en-US/firefox/addon/7575
+[rainbow]: https://addons.mozilla.org/en-US/firefox/addon/9603
 [codemirror]: http://marijn.haverbeke.nl/codemirror/
 [homepage]: http://xrefresh.com/rainbow
 [presets]: http://xrefresh.com/presets
