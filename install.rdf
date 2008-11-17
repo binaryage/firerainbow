@@ -18,6 +18,6 @@
         <em:creator>Antonin Hildebrand</em:creator>
         <em:contributor>Marijn Haverbeke</em:contributor>
         <em:homepageURL>http://github.com/woid/firerainbow</em:homepageURL>
-        <em:iconURL>chrome://rainbow/skin/rainbow.png</em:iconURL>
+        <em:iconURL>chrome://firerainbow/skin/rainbow.png</em:iconURL>
     </Description>
 </RDF>

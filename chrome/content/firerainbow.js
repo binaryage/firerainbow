@@ -4,20 +4,21 @@
 // open custom scope
 FBL.ns(function() {
     with (FBL) {
-        const Cc = Components.classes;
-        const Ci = Components.interfaces;
         // some people reported that rainbow was initialised twice
         // see http://getsatisfaction.com/xrefresh/topics/too_many_recursions_problem_with_rainbow
-        // this is a way how to prevent it ()
+        // this is a hack how to prevent it
         if (!FBL.rainbowInitialised) {
             FBL.rainbowInitialised = true;
+
+            const Cc = Components.classes;
+            const Ci = Components.interfaces;
 
             // test for feature added in r686 (http://code.google.com/p/fbug/source/detail?r=686)
             // note: previous rainbow did break firebug without this test
             var cssPanelAvailable = !!Firebug.CSSStyleSheetPanel;
             if (!cssPanelAvailable) {
                 var consoleService = Cc['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
-                consoleService.logStringMessage("Rainbow requires Firebug 1.3+ (your have "+Firebug.getVersion()+").");
+                consoleService.logStringMessage("FireRainbow requires Firebug 1.3+ (your have "+Firebug.getVersion()+").");
                 consoleService.logStringMessage('Please update your Firebug extension to latest version (http://getfirebug.com).');
             } else {
                 const nsIPrefBranch = Ci.nsIPrefBranch;
@@ -32,17 +33,23 @@ FBL.ns(function() {
                 const currentCodeVersion = 2;
 
                 if (Firebug.TraceModule) {
-                    Firebug.TraceModule.DBG_RAINBOW = false;
-                    var type = rainbowPrefs.getPrefType('extensions.firebug.DBG_RAINBOW');
+                    Firebug.TraceModule.DBG_FIRERAINBOW = false;
+                    var type = rainbowPrefs.getPrefType('extensions.firebug.DBG_FIRERAINBOW');
                     if (type!=nsIPrefBranch.PREF_BOOL) try {
-                        rainbowPrefs.setBoolPref('extensions.firebug.DBG_RAINBOW', false);
+                        rainbowPrefs.setBoolPref('extensions.firebug.DBG_FIRERAINBOW', false);
                     } catch(e) {}
                 }
 
+                function dbg() {
+                    if (FBTrace && FBTrace.DBG_FIRERAINBOW) { 
+                        FBTrace.sysout.apply(this, arguments);
+                    }
+                }
+
                 ////////////////////////////////////////////////////////////////////////
-                // Firebug.RainbowExtension
+                // Firebug.FireRainbowExtension
                 //
-                Firebug.RainbowExtension = extend(Firebug.Extension, {
+                Firebug.FireRainbowExtension = extend(Firebug.Extension, {
                     // this is called whenever script viewport is about to be rendered
                     onApplyDecorator: function(sourceBox) {
                         // patch sourcebox render functionality
@@ -62,14 +69,14 @@ FBL.ns(function() {
                             return;
                         }
                         // start coloring (if not already in progress or done)
-                        Firebug.RainbowModule.colorizeSourceBox(sourceBox);
+                        Firebug.FireRainbowModule.colorizeSourceBox(sourceBox);
                     }
                 });
                 
                 ////////////////////////////////////////////////////////////////////////
-                // Firebug.RainbowModule
+                // Firebug.FireRainbowModule
                 //
-                Firebug.RainbowModule = extend(Firebug.Module, {
+                Firebug.FireRainbowModule = extend(Firebug.Module, {
                     valid: false,
                     pings: 0,
                     styleLibrary: {},
@@ -91,17 +98,17 @@ FBL.ns(function() {
                     /////////////////////////////////////////////////////////////////////////////////////////
                     showPanel: function(browser, panel) {
                         if (!this.valid) return;
-                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: showPanel", panel);
+                        dbg("Rainbow: showPanel", panel);
                         var isScriptPanel = panel && panel.name == "script";
                         this.actualScriptPanel = isScriptPanel?panel:undefined;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     initContext: function(context) {
-                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: initContext", context);
+                        dbg("Rainbow: initContext", context);
                         Firebug.Module.initContext.apply(this, arguments);
                         // check firebug version
                         if (!this.checkFirebugVersion()) {
-                            if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow requires Firebug 1.3+ (your version is "+Firebug.getVersion()+")");
+                            dbg("Rainbow requires Firebug 1.3+ (your version is "+Firebug.getVersion()+")");
                             return;
                         }
                         this.hookPanel(context);
@@ -127,12 +134,12 @@ FBL.ns(function() {
                         return parseInt(vc[1], 10);
                     },
                     colorizeSourceBox: function(sourceBox) {
-                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: colorizeSourceBox", sourceBox);
+                        dbg("Rainbow: colorizeSourceBox", sourceBox);
                         this.pingDaemon(sourceBox);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     hookPanel: function(context) {
-                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: hookPanel", context);
+                        dbg("Rainbow: hookPanel", context);
                         var chrome = context ? context.chrome : FirebugChrome;
                         var code = this.getPref('coloring');
                         var version = this.getCodeVersion(code);
@@ -164,7 +171,7 @@ FBL.ns(function() {
                         if (!sourceBox.lines) return;
                         if (sourceBox.colorized) return; // already colorized
 
-                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: startDaemon", sourceBox);
+                        dbg("Rainbow: startDaemon", sourceBox);
                         
                         this.currentSourceBox = sourceBox;
                         if (sourceBox.lineToBeColorized==undefined) sourceBox.lineToBeColorized = 0;
@@ -198,7 +205,7 @@ FBL.ns(function() {
                         this.daemonTimer = setInterval(
                             function() {
                                 try {
-                                    if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.sysout("Rainbow: daemon processing lines "+sourceBox.lineToBeColorized+"-"+(sourceBox.lineToBeColorized+linesPerCall));
+                                    dbg("Rainbow: daemon processing lines "+sourceBox.lineToBeColorized+"-"+(sourceBox.lineToBeColorized+linesPerCall));
                                     var count = linesPerCall;
                                     while (count--) {
                                         var currentLineNo = sourceBox.lineToBeColorized;
@@ -207,7 +214,7 @@ FBL.ns(function() {
                                             // do review to be sure actual view gets finaly colorized
                                             if (that.actualScriptPanel) {
                                                 sourceBox.preventRainbowRecursion = true;
-                                                if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reView!", sourceBox);
+                                                dbg("Rainbow: reView!", sourceBox);
                                                 that.actualScriptPanel.reView(sourceBox);
                                             }
                                             that.stopDaemon();
@@ -244,12 +251,12 @@ FBL.ns(function() {
                                         // just crossed actual view, do a reView
                                         if (that.actualScriptPanel) { 
                                             sourceBox.preventRainbowRecursion = true;
-                                            if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: reView!", sourceBox);
+                                            dbg("Rainbow: reView!", sourceBox);
                                             that.actualScriptPanel.reView(sourceBox);
                                         }
                                     }
                                 } catch (ex) {
-                                    if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: exception", ex);
+                                    dbg("Rainbow: exception", ex);
                                     // stop daemon in this exceptional case
                                     that.stopDaemon();
                                     sourceBox.colorized = true;
@@ -265,7 +272,7 @@ FBL.ns(function() {
                     /////////////////////////////////////////////////////////////////////////////////////////
                     stopDaemon: function() {
                         if (!this.daemonTimer) return;
-                        if (FBTrace && FBTrace.DBG_RAINBOW) FBTrace.dumpProperties("Rainbow: stopDaemon");
+                        dbg("Rainbow: stopDaemon");
                         clearInterval(this.daemonTimer);
                         this.daemonTimer = undefined;
                         this.currentSourceBox = undefined;
@@ -352,7 +359,7 @@ FBL.ns(function() {
                         var params = {
                             out:null
                         };
-                        window.openDialog("chrome://rainbow/content/import.xul", "", "chrome, dialog, modal, resizable=yes", params).focus();
+                        window.openDialog("chrome://firerainbow/content/import.xul", "", "chrome, dialog, modal, resizable=yes", params).focus();
                         if (params.out) {
                             var code = params.out.code;
                             this.applySyntaxColoring(code, this.panelBar1);
@@ -446,9 +453,8 @@ FBL.ns(function() {
                 /////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////
 
-                Firebug.RainbowSyntaxColoringEditorPanel = function() {};
-
-                Firebug.RainbowSyntaxColoringEditorPanel.prototype = extend(Firebug.CSSStyleSheetPanel.prototype,{
+                Firebug.FireRainbowSyntaxColoringEditorPanel = function() {};
+                Firebug.FireRainbowSyntaxColoringEditorPanel.prototype = extend(Firebug.CSSStyleSheetPanel.prototype,{
                     name: "rainbow",
                     title: "Colors",
                     parentPanel: "script",
@@ -478,7 +484,7 @@ FBL.ns(function() {
                             var sheet = that.lookupStyleSheet(browser);
                             if (!sheet) return;
                             var rules = that.getStyleSheetRules(that.context, sheet);
-                            Firebug.RainbowModule.saveSyntaxColoring(rules);
+                            Firebug.FireRainbowModule.saveSyntaxColoring(rules);
                         }, 1000);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
@@ -493,33 +499,32 @@ FBL.ns(function() {
                         this.updateLocation(sheet);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
-                    getOptionsMenuItems: function()
-                    {
+                    getOptionsMenuItems: function() {
                         return [
                             {
                                 label: 'Import Color Preset ...',
                                 nol10n: true,
-                                command: bind(Firebug.RainbowModule.importPreset, Firebug.RainbowModule)
+                                command: bind(Firebug.FireRainbowModule.importPreset, Firebug.FireRainbowModule)
                             },{
                                 label: 'Randomize Color Preset',
                                 nol10n: true,
-                                command: bind(Firebug.RainbowModule.randomizePreset, Firebug.RainbowModule)
+                                command: bind(Firebug.FireRainbowModule.randomizePreset, Firebug.FireRainbowModule)
                             },{
                                 label: 'Reset to default Color Preset',
                                 nol10n: true,
-                                command: bind(Firebug.RainbowModule.resetToDefaultPreset, Firebug.RainbowModule)
+                                command: bind(Firebug.FireRainbowModule.resetToDefaultPreset, Firebug.FireRainbowModule)
                             },'-',{
-                                label: 'Rainbow Website ...',
+                                label: 'FireRainbow Website ...',
                                 nol10n: true,
-                                command: bind(Firebug.RainbowModule.visitWebsite, Firebug.RainbowModule)
+                                command: bind(Firebug.FireRainbowModule.visitWebsite, Firebug.FireRainbowModule)
                             }
                         ];
                     }
                 });
 
-                Firebug.registerModule(Firebug.RainbowModule);
-                Firebug.registerExtension(Firebug.RainbowExtension);
-                Firebug.registerPanel(Firebug.RainbowSyntaxColoringEditorPanel);
+                Firebug.registerModule(Firebug.FireRainbowModule);
+                Firebug.registerExtension(Firebug.FireRainbowExtension);
+                Firebug.registerPanel(Firebug.FireRainbowSyntaxColoringEditorPanel);
             }
         }
     }

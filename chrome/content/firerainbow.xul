@@ -1,0 +1,17 @@
+<?xml version="1.0"?> 
+<?xml-stylesheet href="chrome://global/skin/global.css"?>
+<?xml-stylesheet href="chrome://firebug/content/firebug.css"?>
+<?xml-stylesheet href="chrome://firebug/skin/window.css"?>
+<?xml-stylesheet href="chrome://firerainbow/skin/rainbow.css"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script>Editor = {};</script>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/util.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/tokenize.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/tokenizejavascript.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsejavascript.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsecss.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsexml.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsehtmlmixed.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/stream.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/firerainbow.js"/>
+</overlay>

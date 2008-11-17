@@ -1,5 +1,5 @@
-content rainbow chrome/content/
-skin rainbow classic/1.0 chrome/skin/
-locale rainbow en-US chrome/locale/
+content firerainbow chrome/content/
+skin firerainbow classic/1.0 chrome/skin/
+locale firerainbow en-US chrome/locale/
 
-overlay chrome://firebug/content/browserOverlay.xul chrome://rainbow/content/rainbow.xul
+overlay chrome://firebug/content/browserOverlay.xul chrome://firerainbow/content/firerainbow.xul
