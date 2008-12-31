@@ -222,6 +222,7 @@ FBL.ns(function() {
                                             if (that.actualScriptPanel) {
                                                 sourceBox.preventRainbowRecursion = true;
                                                 dbg("Rainbow: reView!", sourceBox);
+                                                that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
                                                 that.actualScriptPanel.reView(sourceBox);
                                             }
                                             that.stopDaemon();
@@ -258,6 +259,7 @@ FBL.ns(function() {
                                         if (that.actualScriptPanel) { 
                                             sourceBox.preventRainbowRecursion = true;
                                             dbg("Rainbow: reView!", sourceBox);
+                                            that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
                                             that.actualScriptPanel.reView(sourceBox);
                                         }
                                     }
