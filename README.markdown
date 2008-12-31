@@ -25,9 +25,9 @@ Sample [color presets are here][presets]. Your preset modifications [are welcome
 Current State
 -------------
 
-Version 0.8 is tested to work with alpha Firebug 1.3
-
-Version 0.7 is tested to work with official Firebug 1.2
+* Version 0.9 is tested to work with alpha Firebug 1.4
+* Version 0.8 is tested to work with alpha Firebug 1.3
+* Version 0.7 is tested to work with official Firebug 1.2
 
 Contributors
 ------------
@@ -42,18 +42,22 @@ The support [forum is here][support] (powered by [getsatisfaction.com][satisfact
 History
 -------
 
-* 0.8 (15.11.2008) 
+* v0.9 (to be released) 
+  * updated parser with CodeMirror 0.60
+  * fixed glitch when script didn't get colorized on first display in Firebug 1.4
+
+* v0.8 (15.11.2008) 
   * reimplemented for changes in Firebug 1.3 (not compatible with Firebug 1.2 anymore)
   * added "Reset to default Color Preset" feature
   * changed extension guid, to distinguish from 0.7
 
-* 0.7 (27.08.2008) 
+* v0.7 (27.08.2008) 
   * added mixed HTML/CSS/JS coloring
   * added "Randomize Color Preset" feature
   * when installed with old firebug, error message is written into Firefox's error console
   * fixed bug preventing proper coloring in some rare cases
 
-* 0.6 (14.06.2008) 
+* v0.6 (14.06.2008) 
   * public beta release
 
 
