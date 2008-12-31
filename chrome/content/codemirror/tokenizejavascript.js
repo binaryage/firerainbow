@@ -6,11 +6,11 @@ var tokenizeJavaScript = (function() {
   function nextUntilUnescaped(source, end) {
     var escaped = false;
     var next;
-    while(!source.endOfLine()){
+    while (!source.endOfLine()) {
       var next = source.next();
       if (next == end && !escaped)
         return false;
-      escaped = next == "\\";
+      escaped = !escaped && next == "\\";
     }
     return escaped;
   }
@@ -41,13 +41,14 @@ var tokenizeJavaScript = (function() {
       "return": keywordC, "break": keywordC, "continue": keywordC, "new": keywordC, "delete": keywordC, "throw": keywordC,
       "in": operator, "typeof": operator, "instanceof": operator,
       "var": result("var", "js-keyword"), "function": result("function", "js-keyword"), "catch": result("catch", "js-keyword"),
-      "for": result("for", "js-keyword"), "case": result("case", "js-keyword"),
+      "for": result("for", "js-keyword"), 
+      "case": result("case", "js-keyword"), "default": result("default", "js-keyword"),
       "true": atom, "false": atom, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom
     };
   }();
 
   // Some helper regexp matchers.
-  var isOperatorChar = matcher(/[\+\-\*\&\%\/=<>!\?]/);
+  var isOperatorChar = matcher(/[+\-*&%\/=<>!?|]/);
   var isDigit = matcher(/[0-9]/);
   var isHexDigit = matcher(/[0-9A-Fa-f]/);
   var isWordChar = matcher(/[\w\$_]/);

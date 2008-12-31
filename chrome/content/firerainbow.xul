@@ -12,6 +12,6 @@
     <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsecss.js"/>
     <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsexml.js"/>
     <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsehtmlmixed.js"/>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/stream.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/stringstream.js"/>
     <script type="application/x-javascript" src="chrome://firerainbow/content/firerainbow.js"/>
 </overlay>

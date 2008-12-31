@@ -178,7 +178,7 @@ FBL.ns(function() {
                         if (!sourceBox.colorizedLines) sourceBox.colorizedLines = [];
 
                         // init daemon state
-                        if (!sourceBox.stream) sourceBox.stream = Editor.rainbowStream();
+                        var nextLine = null;
 
                         if (!sourceBox.parser) {
                             var firstLine = "";
@@ -194,7 +194,14 @@ FBL.ns(function() {
                             // use HTML mixed parser if you encounter these substrings on first line
                             if (firstLine.indexOf('<!DOCTYPE')!=-1 || firstLine.indexOf("<html")!=-1 || 
                                 firstLine.indexOf("<body")!=-1 || firstLine.indexOf("<head")!=-1) parser = HTMLMixedParser;
-                            sourceBox.parser = parser.make(sourceBox.stream);
+                            sourceBox.parser = parser.make(stringStream({
+                                next: function() {
+                                    if (nextLine===null) throw StopIteration;
+                                    var result = nextLine;
+                                    nextLine = null;
+                                    return result;
+                                }
+                            }));
                         }
 
                         var linesPerCall = this.getPref('linesPerCall', 20);
@@ -221,13 +228,12 @@ FBL.ns(function() {
                                             sourceBox.colorized = true;
                                             // free up memory
                                             sourceBox.parser = undefined;
-                                            sourceBox.stream = undefined;
                                             return;
                                         }
                                         // extract line code from node
                                         // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
-                                        var code = sourceBox.lines[currentLineNo]+"\n";
-                                        sourceBox.stream.reinit(code);
+                                        nextLine = sourceBox.lines[currentLineNo]+"\n";
+                                        
                                         var line = [];
                                         // parts accumulated for current line
                                         // process line tokens
@@ -260,10 +266,9 @@ FBL.ns(function() {
                                     // stop daemon in this exceptional case
                                     that.stopDaemon();
                                     sourceBox.colorized = true;
-                                    SourceBox.colorizationFailed = true;
+                                    sourceBox.colorizationFailed = true;
                                     // free up memory
                                     sourceBox.parser = undefined;
-                                    sourceBox.stream = undefined;
                                     return;
                                 }
                             },

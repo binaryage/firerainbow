@@ -25,7 +25,7 @@ var XMLParser = Editor.Parser = (function() {
         if (source.equals("!")) {
           source.next();
           if (source.equals("[")) {
-            if (source.matches("[CDATA[", true)) {
+            if (source.lookAhead("[CDATA[", true)) {
               setState(inBlock("xml-cdata", "]]>"));
               return null;
             }
@@ -33,7 +33,7 @@ var XMLParser = Editor.Parser = (function() {
               return "xml-text";
             }
           }
-          else if (source.matches("--", true)) {
+          else if (source.lookAhead("--", true)) {
             setState(inBlock("xml-comment", "-->"));
             return null;
           }
@@ -43,8 +43,9 @@ var XMLParser = Editor.Parser = (function() {
         }
         else if (source.equals("?")) {
           source.next();
+          source.nextWhile(matcher(/[\w\._\-]/));
           setState(inBlock("xml-processing", "?>"));
-          return null;
+          return "xml-processing";
         }
         else {
           if (source.equals("/")) source.next();
@@ -103,19 +104,12 @@ var XMLParser = Editor.Parser = (function() {
 
     function inBlock(style, terminator) {
       return function(source, setState) {
-        var matches = [];
         while (!source.endOfLine()) {
-          var ch = source.next(), newMatches = [];
-          if (ch == terminator.charAt(0))
-            matches.push(terminator);
-          for (var i = 0; i < matches.length; i++) {
-            var match = matches[i];
-            if (match.charAt(0) == ch) {
-              if (match.length == 1) {setState(inText); break;}
-              else newMatches.push(match.slice(1));
-            }
+          if (source.lookAhead(terminator, true)) {
+            setState(inText);
+            break;
           }
-          matches = newMatches;
+          source.next();
         }
         return style;
       };
