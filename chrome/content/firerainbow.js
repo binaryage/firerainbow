@@ -9,6 +9,8 @@ FBL.ns(function() {
         // this is a hack how to prevent it
         if (!FBL.rainbowInitialised) {
             FBL.rainbowInitialised = true;
+            
+            const MAX_LINE_LENGTH = 500;
 
             const Cc = Components.classes;
             const Ci = Components.interfaces;
@@ -207,6 +209,21 @@ FBL.ns(function() {
                         var linesPerCall = this.getPref('linesPerCall', 20);
                         var daemonInterval = this.getPref('daemonInterval', 100);
 
+                        var finish = function() {
+                            // do review to be sure actual view gets finaly colorized
+                            if (that.actualScriptPanel) {
+                                sourceBox.preventRainbowRecursion = true;
+                                dbg("Rainbow: reView!", sourceBox);
+                                that.actualScriptPanel.lastScrollTop = that.actualScriptPanel.lastScrollTop || 0;
+                                that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
+                                that.actualScriptPanel.reView(sourceBox);
+                            }
+                            that.stopDaemon();
+                            sourceBox.colorized = true;
+                            // free up memory
+                            sourceBox.parser = undefined;
+                        };
+
                         // run daemon
                         var that = this;
                         this.daemonTimer = setInterval(
@@ -218,22 +235,16 @@ FBL.ns(function() {
                                         var currentLineNo = sourceBox.lineToBeColorized;
                                         // finish if no more lines
                                         if (currentLineNo >= sourceBox.lines.length) {
-                                            // do review to be sure actual view gets finaly colorized
-                                            if (that.actualScriptPanel) {
-                                                sourceBox.preventRainbowRecursion = true;
-                                                dbg("Rainbow: reView!", sourceBox);
-                                                that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
-                                                that.actualScriptPanel.reView(sourceBox);
-                                            }
-                                            that.stopDaemon();
-                                            sourceBox.colorized = true;
-                                            // free up memory
-                                            sourceBox.parser = undefined;
-                                            return;
+                                            return finish();
                                         }
                                         // extract line code from node
                                         // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
                                         nextLine = sourceBox.lines[currentLineNo]+"\n";
+                                        
+                                        // finish if line is too long (particulary packed js sources were causing UI stalls)
+                                        if (nextLine.length>MAX_LINE_LENGTH) {
+                                            return finish();
+                                        }
                                         
                                         var line = [];
                                         // parts accumulated for current line
@@ -259,6 +270,7 @@ FBL.ns(function() {
                                         if (that.actualScriptPanel) { 
                                             sourceBox.preventRainbowRecursion = true;
                                             dbg("Rainbow: reView!", sourceBox);
+                                            that.actualScriptPanel.lastScrollTop = that.actualScriptPanel.lastScrollTop || 0;
                                             that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
                                             that.actualScriptPanel.reView(sourceBox);
                                         }

@@ -112,9 +112,8 @@ task :default do
   res = "#{DST}/firerainbow-#{version}.xpi"
   File.unlink(res) if File.exists?(res)
   puts "#{cmd_color('zipping')} #{file_color(res)}"
-  owd = Dir.getwd()
-  Dir.chdir(TMP)
-  puts red('need zip on command line (download http://www.info-zip.org/Zip.html)') unless system("zip -r \"#{res}\" *");
-  Dir.chdir(owd)
+  Dir.chdir(TMP) do
+    puts red('need zip on command line (download http://www.info-zip.org/Zip.html)') unless system("zip -r \"#{res}\" *");
+  end
   remove_dir(TMP) if File.exist?(TMP) # recursive!
 end
