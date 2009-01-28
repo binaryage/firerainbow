@@ -7,7 +7,7 @@ FireRainbow brings javascript syntax highlighting to [Firebug 1.3][firebug].
 Prerequisites
 -------------
 
-You need [Firebug 1.3][firebug].
+You need [Firebug 1.3][firebug] or alpha Firebug 1.4 for latest version to work. If you are still stuck on Firebug 1.2, install [version 0.7][v07].
 
 Installation
 ------------
@@ -25,7 +25,7 @@ Sample [color presets are here][presets]. Your preset modifications [are welcome
 Current State
 -------------
 
-* Version 0.9 is tested to work with beta Firebug 1.3 and alpha Firebug 1.4
+* Version 0.9 is tested to work with offcial Firebug 1.3 and alpha Firebug 1.4
 * Version 0.8 is tested to work with alpha Firebug 1.3
 * Version 0.7 is tested to work with official Firebug 1.2
 
@@ -42,9 +42,10 @@ The support [forum is here][support] (powered by [getsatisfaction.com][satisfact
 History
 -------
 
-* v0.9 (to be released)
+* v0.9 (29.01.2009)
   * updated parser with CodeMirror 0.60
   * fixed glitch when script didn't get colorized on first display in Firebug 1.4
+  * tested to work with official Firebug 1.3 and Firefox 3.0.5 (worked also with alpha Firebug 1.4 and nightly Firefox 3.1)
 
 * v0.8 (15.11.2008)
   * reimplemented for changes in Firebug 1.3 (not compatible with Firebug 1.2 anymore)
@@ -70,3 +71,4 @@ History
 [workaround]: http://getsatisfaction.com/xrefresh/topics/unable_to_download_rainbow_for_firebug
 [support]: http://getsatisfaction.com/xrefresh/products/xrefresh_rainbow_for_firebug
 [satisfaction]: http://getsatisfaction.com
+[v07]: https://addons.mozilla.org/en-US/developers/details/7575
