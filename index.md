@@ -10,13 +10,13 @@ version: Version 0.9
 FireRainbow brings javascript syntax highlighting to [Firebug][firebug]
 ===================
 
-<img class="welcome shadow" src="http://cloud.github.com/downloads/darwin/firerainbow/firerainbow-screenshot.png" alt="screenshot">
+<img class="welcome shadow" src="http://cloud.github.com/downloads/darwin/firerainbow/firerainbow-screenshot.png" alt="screenshot" title="FireRainbow 0.9">
 
 Installation
 ------------
 
 You need [Firebug 1.3][firebug] for latest version to work. 
-If you are still stuck on Firebug 1.2, install [version 0.7][v07].
+If you are still stuck with Firebug 1.2, install [version 0.7][v07].
 
 Preferred way is to [install this firefox extension][rainbow] via addons.mozilla.com.
 
