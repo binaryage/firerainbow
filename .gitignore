@@ -3,3 +3,4 @@ build
 tmp
 .DS_Store
 Thumbs.db
+_site
