@@ -80,3 +80,13 @@ img.binaryage-logo {
     margin-top: 30px;
 }
 
+#footer .github-icon {
+    position: relative;
+}
+
+#footer .github-icon img {
+    position: absolute;
+    top: 36px;
+    left: 540px;
+}
+
