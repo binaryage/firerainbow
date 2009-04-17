@@ -2,7 +2,7 @@
 title: FireRainbow
 layout: wikistyle
 repo: http://github.com/darwin/firerainbow
-support: http://getsatisfaction.com/xrefresh/products/xrefresh_rainbow_for_firebug
+support: http://github.com/darwin/firerainbow/issues
 download: http://addons.mozilla.org/en-US/firefox/addon/9603
 version: Version 0.9
 ---
