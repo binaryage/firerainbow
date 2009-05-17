@@ -101,8 +101,8 @@ var CSSParser = Editor.Parser = (function() {
   function indentCSS(inBraces, inRule, base) {
     return function(nextChars) {
       if (!inBraces || /^\}/.test(nextChars)) return base;
-      else if (inRule) return base + 4;
-      else return base + 2;
+      else if (inRule) return base + indentUnit * 2;
+      else return base + indentUnit;
     };
   }
 

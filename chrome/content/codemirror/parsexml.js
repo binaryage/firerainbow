@@ -10,10 +10,11 @@ var XMLParser = Editor.Parser = (function() {
   var Kludges = {
     autoSelfClosers: {"br": true, "img": true, "hr": true, "link": true, "input": true,
                       "meta": true, "col": true, "frame": true, "base": true, "area": true},
-    doNotIndent: {"pre": true}
+    doNotIndent: {"pre": true, "!cdata": true}
   };
-  var NoKludges = {autoSelfClosers: {}, doNotIndent: {}};
+  var NoKludges = {autoSelfClosers: {}, doNotIndent: {"!cdata": true}};
   var UseKludges = Kludges;
+  var alignCDATA = false;
 
   // Simple stateful tokenizer for XML documents. Returns a
   // MochiKit-style iterator, with a state property that contains a
@@ -161,16 +162,18 @@ var XMLParser = Editor.Parser = (function() {
       context = context.prev;
     }
     function computeIndentation(baseContext) {
-      return function(nextChars) {
+      return function(nextChars, current) {
         var context = baseContext;
         if (context && context.noIndent)
+          return current;
+        if (alignCDATA && /<!\[CDATA\[/.test(nextChars))
           return 0;
         if (context && /^<\//.test(nextChars))
           context = context.prev;
         while (context && !context.startOfLine)
           context = context.prev;
         if (context)
-          return context.indent + 2;
+          return context.indent + indentUnit;
         else
           return 0;
       };
@@ -179,12 +182,15 @@ var XMLParser = Editor.Parser = (function() {
     function base() {
       return pass(element, base);
     }
-    var harmlessTokens = {"xml-text": true, "xml-entity": true, "xml-comment": true,
-                          "xml-cdata": true, "xml-processing": true};
+    var harmlessTokens = {"xml-text": true, "xml-entity": true, "xml-comment": true, "xml-processing": true};
     function element(style, content) {
       if (content == "<") cont(tagname, attributes, endtag(tokenNr == 1));
       else if (content == "</") cont(closetagname, expect(">"));
-      else if (content == "<?") cont(tagname, attributes, expect("?>"));
+      else if (style == "xml-cdata") {
+        if (!context || context.name != "!cdata") pushContext("!cdata");
+        if (/\]\]>$/.test(content)) popContext();
+        cont();
+      }
       else if (harmlessTokens.hasOwnProperty(style)) cont();
       else mark("xml-error") || cont();
     }
@@ -277,10 +283,10 @@ var XMLParser = Editor.Parser = (function() {
     make: parseXML,
     electricChars: "/",
     configure: function(config) {
-      if (config.useHTMLKludges)
-        UseKludges = Kludges;
-      else
-        UseKludges = NoKludges;
+      if (config.useHTMLKludges != null)
+        UseKludges = config.useHTMLKludges ? Kludges : NoKludges;
+      if (config.alignCDATA)
+        alignCDATA = config.alignCDATA;
     }
   };
 })();

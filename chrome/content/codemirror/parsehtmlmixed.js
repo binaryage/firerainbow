@@ -24,7 +24,7 @@ var HTMLMixedParser = Editor.Parser = (function() {
     }
     function local(parser, tag) {
       var baseIndent = htmlParser.indentation();
-      localParser = parser.make(stream, baseIndent + 2);
+      localParser = parser.make(stream, baseIndent + indentUnit);
       return function() {
         if (stream.lookAhead(tag, false, false, true)) {
           localParser = null;
@@ -69,5 +69,6 @@ var HTMLMixedParser = Editor.Parser = (function() {
     return iter;
   }
 
-  return {make: parseMixed, electricChars: "{}/"};
+  return {make: parseMixed, electricChars: "{}/:"};
+
 })();

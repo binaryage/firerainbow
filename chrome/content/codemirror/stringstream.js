@@ -15,7 +15,6 @@
 // is applied to the result of traverseDOM (see codemirror.js), and
 // the resulting stream is fed to the parser.
 window.stringStream = function(source){
-  source = iter(source);
   // String that's currently being iterated over.
   var current = "";
   // Position in that string.

@@ -4,7 +4,7 @@
 <?xml-stylesheet href="chrome://firebug/skin/window.css"?>
 <?xml-stylesheet href="chrome://firerainbow/skin/rainbow.css"?>
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <script>Editor = {};</script>
+    <script>Editor = {};var indentUnit = 2;</script>
     <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/util.js"/>
     <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/tokenize.js"/>
     <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/tokenizejavascript.js"/>

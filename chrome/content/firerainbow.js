@@ -271,7 +271,7 @@ FBL.ns(function() {
                                         sourceBox.colorizedLines.push(sourceBox.parsedLine.join('').replace(/\n/g, ''));
 
 	                                    if (startLine && startLine<=sourceBox.lastViewableLine && sourceBox.lineToBeColorized>=sourceBox.lastViewableLine) {
-	                                        // just crossed actual view, refresh it!
+	                                        // just crossed actual view, force refresh!
 											refresh();
 											startLine = null;
 	                                    }
