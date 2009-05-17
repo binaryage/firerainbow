@@ -206,18 +206,23 @@ FBL.ns(function() {
                             }));
                         }
 
-                        var linesPerCall = this.getPref('linesPerCall', 20);
+                        var tokensPerCall = this.getPref('tokensPerCall', 500);
                         var daemonInterval = this.getPref('daemonInterval', 100);
 
-                        var finish = function() {
+						var refresh = function() {
                             // do review to be sure actual view gets finaly colorized
                             if (that.actualScriptPanel) {
                                 sourceBox.preventRainbowRecursion = true;
                                 dbg("Rainbow: reView!", sourceBox);
                                 that.actualScriptPanel.lastScrollTop = that.actualScriptPanel.lastScrollTop || 0;
                                 that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
+								sourceBox.firstViewableLine = -1; // overcome another layer of reView optimization added in Firebug 1.4
                                 that.actualScriptPanel.reView(sourceBox);
                             }
+						};
+
+                        var finish = function() {
+							refresh();
                             that.stopDaemon();
                             sourceBox.colorized = true;
                             // free up memory
@@ -229,51 +234,51 @@ FBL.ns(function() {
                         this.daemonTimer = setInterval(
                             function() {
                                 try {
-                                    dbg("Rainbow: daemon processing lines "+sourceBox.lineToBeColorized+"-"+(sourceBox.lineToBeColorized+linesPerCall));
-                                    var count = linesPerCall;
-                                    while (count--) {
-                                        var currentLineNo = sourceBox.lineToBeColorized;
-                                        // finish if no more lines
-                                        if (currentLineNo >= sourceBox.lines.length) {
-                                            return finish();
-                                        }
-                                        // extract line code from node
-                                        // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
-                                        nextLine = sourceBox.lines[currentLineNo]+"\n";
-                                        
-                                        // finish if line is too long (particulary packed js sources were causing UI stalls)
-                                        if (nextLine.length>MAX_LINE_LENGTH) {
-                                            return finish();
-                                        }
-                                        
-                                        var line = [];
-                                        // parts accumulated for current line
-                                        // process line tokens
+									var tokenQuota = tokensPerCall;
+									var startLine = sourceBox.lineToBeColorized;
+                                    while (true) {
+										if (!sourceBox.hasLine) {
+	                                        // finish if no more lines
+	                                        if (sourceBox.lineToBeColorized >= sourceBox.lines.length) {
+	                                            return finish();
+	                                        }
+											
+	                                        // extract line code from node
+	                                        // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
+	                                        nextLine = sourceBox.lines[sourceBox.lineToBeColorized]+"\n";
+
+											sourceBox.parsedLine = [];
+											sourceBox.hasLine = true;
+										}
+										
                                         forEach(sourceBox.parser,
                                             function(token) {
-                                                // colorize token
+	                                            // colorize token
                                                 var val = token.value;
-                                                line.push('<span class="' + token.style + '">' + escapeHTML(val) + '</span>');
+                                                sourceBox.parsedLine.push('<span class="' + token.style + '">' + escapeHTML(val) + '</span>');
                                                 that.styleLibrary[token.style] = true;
+												if (--tokenQuota==0) {
+													throw StopIteration;
+												}
                                             }
                                         );
+										
+										if (!tokenQuota) {
+											return;
+										}
+                                    
+                                        // apply coloring to the line
+                                        sourceBox.colorizedLines.push(sourceBox.parsedLine.join('').replace(/\n/g, ''));
 
-                                        // apply coloring to line
-                                        sourceBox.colorizedLines.push(line.join("").replace(/\n/g, ''));
-
+	                                    if (startLine && startLine<=sourceBox.lastViewableLine && sourceBox.lineToBeColorized>=sourceBox.lastViewableLine) {
+	                                        // just crossed actual view, refresh it!
+											refresh();
+											startLine = null;
+	                                    }
+	
                                         // move for next line
                                         sourceBox.lineToBeColorized++;
-                                    }
-                                
-                                    if (sourceBox.lineToBeColorized>=sourceBox.lastViewableLine && sourceBox.lineToBeColorized-linesPerCall<=sourceBox.lastViewableLine) {
-                                        // just crossed actual view, do a reView
-                                        if (that.actualScriptPanel) { 
-                                            sourceBox.preventRainbowRecursion = true;
-                                            dbg("Rainbow: reView!", sourceBox);
-                                            that.actualScriptPanel.lastScrollTop = that.actualScriptPanel.lastScrollTop || 0;
-                                            that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
-                                            that.actualScriptPanel.reView(sourceBox);
-                                        }
+										sourceBox.hasLine = false;
                                     }
                                 } catch (ex) {
                                     dbg("Rainbow: exception", ex);
