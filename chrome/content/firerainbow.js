@@ -29,7 +29,7 @@ FBL.ns(function() {
                 const rainbowPrefService = Cc["@mozilla.org/preferences-service;1"];
                 const rainbowPrefs = rainbowPrefService.getService(nsIPrefBranch2);
 
-                const rainbowWebsite = "http://xrefresh.com/rainbow";
+                const rainbowWebsite = "http://firerainbow.binaryage.com";
                 const rainbowPrefDomain = "extensions.rainbow";
 
                 const currentCodeVersion = 2;
