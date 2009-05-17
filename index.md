@@ -37,8 +37,13 @@ Contributors
 History
 -------
 
+* v1.0 (to be released)
+  * robust colorization of compressed scripts with long lines (previously parser halted) 
+  * updated parser to CodeMirror 0.61
+  * compatibility with Firebug 1.4
+
 * v0.9 (29.01.2009)
-  * updated parser with CodeMirror 0.60
+  * updated parser to CodeMirror 0.60
   * fixed glitch when script didn't get colorized on first display in Firebug 1.4
   * tested to work with official Firebug 1.3 and Firefox 3.0.5 (worked also with alpha Firebug 1.4 and nightly Firefox 3.1)
 
