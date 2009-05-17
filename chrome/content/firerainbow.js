@@ -259,7 +259,7 @@ FBL.ns(function() {
                                         );
 
                                         // apply coloring to line
-                                        sourceBox.colorizedLines.push(line.join(""));
+                                        sourceBox.colorizedLines.push(line.join("").replace(/\n/g, ''));
 
                                         // move for next line
                                         sourceBox.lineToBeColorized++;
