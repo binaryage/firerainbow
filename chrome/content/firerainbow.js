@@ -82,7 +82,7 @@ FBL.ns(function() {
                     valid: false,
                     pings: 0,
                     styleLibrary: {},
-                    defaultPreset: ".panelNode-script{background-color:#FFFFFF;color:black;font-family:Monaco,Monospace,Courier New !important;font-size:11px;} .sourceRow.hovered{background-color:#EEEEEE;} .sourceLine{background:#EEEEEE none no-repeat scroll 2px 0;border-bottom:1px solid #EEEEEE;border-right:1px solid #CCCCCC;color:#888888;} .sourceLine:hover{text-decoration:none;} .scriptTooltip{background:LightYellow none repeat scroll 0 0;border:1px solid #CBE087;color:#000000;} .sourceRow[exeline=\"true\"]{background-color:lightgoldenrodyellow;outline-color:#D9D9B6;outline-style:solid;outline-width:1px;} .xml-text{color:black;} .whitespace{color:black;} .xml-punctuation{color:gray;} .xml-tagname{color:blue;} .xml-attname{color:darkred;} .xml-attribute{color:darkgreen;} .css-at{color:darkred;} .css-string{color:red;} .css-punctuation{color:midnightblue;} .js-keyword{color:blue;} .js-variable{color:black;} .js-operator{color:black;} .js-punctuation{color:darkBlue;} .js-variabledef{color:darkslategray;} .js-localvariable{color:darkslateBlue;} .js-property{color:teal;} .js-string{color:darkgreen;} .js-atom{color:saddleBrown;} .xml-comment{color:gray;} .css-identifier{color:midnightBlue;} .css-select-op{color:cadetblue;} .css-unit{color:orangered;} .css-value{color:black;} .css-colorcode{color:magenta;} .js-comment{color:gray;} .js-regexp{color:magenta;} .xml-entity{color:darkgoldenrod;} .xml-error{color:orangered;} .css-comment{color:gray;}",
+                    defaultTheme: ".panelNode-script{background-color:#FFFFFF;color:black;font-family:Monaco,Monospace,Courier New !important;font-size:11px;} .sourceRow.hovered{background-color:#EEEEEE;} .sourceLine{background:#EEEEEE none no-repeat scroll 2px 0;border-bottom:1px solid #EEEEEE;border-right:1px solid #CCCCCC;color:#888888;} .sourceLine:hover{text-decoration:none;} .scriptTooltip{background:LightYellow none repeat scroll 0 0;border:1px solid #CBE087;color:#000000;} .sourceRow[exeline=\"true\"]{background-color:lightgoldenrodyellow;outline-color:#D9D9B6;outline-style:solid;outline-width:1px;} .xml-text{color:black;} .whitespace{color:black;} .xml-punctuation{color:gray;} .xml-tagname{color:blue;} .xml-attname{color:darkred;} .xml-attribute{color:darkgreen;} .css-at{color:darkred;} .css-string{color:red;} .css-punctuation{color:midnightblue;} .js-keyword{color:blue;} .js-variable{color:black;} .js-operator{color:black;} .js-punctuation{color:darkBlue;} .js-variabledef{color:darkslategray;} .js-localvariable{color:darkslateBlue;} .js-property{color:teal;} .js-string{color:darkgreen;} .js-atom{color:saddleBrown;} .xml-comment{color:gray;} .css-identifier{color:midnightBlue;} .css-select-op{color:cadetblue;} .css-unit{color:orangered;} .css-value{color:black;} .css-colorcode{color:magenta;} .js-comment{color:gray;} .js-regexp{color:magenta;} .xml-entity{color:darkgoldenrod;} .xml-error{color:orangered;} .css-comment{color:gray;}",
 
                     /////////////////////////////////////////////////////////////////////////////////////////
                     checkFirebugVersion: function() {
@@ -378,8 +378,8 @@ FBL.ns(function() {
                         this.storeCode(code);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
-                    // opens dialog to import color preset (color preset is just a piece of CSS)
-                    importPreset: function() {
+                    // opens dialog to import color theme (color theme is just a piece of CSS)
+                    importTheme: function() {
                         var params = {
                             out:null
                         };
@@ -412,17 +412,17 @@ FBL.ns(function() {
                         return code;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
-                    // generates template color preset based on visited scripts
-                    randomizePreset: function() {
+                    // generates template color theme based on visited scripts
+                    randomizeTheme: function() {
                         var code = this.generateCodeFromLibrary();
                         this.applySyntaxColoring(code, this.panelBar1);
                         this.saveSyntaxColoring(code);
                         this.invalidatePanels();
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
-                    // resets to default rainbow coloring preset
-                    resetToDefaultPreset: function() {
-                        var code = this.defaultPreset;
+                    // resets to default rainbow coloring theme
+                    resetToDefaultTheme: function() {
+                        var code = this.defaultTheme;
                         this.applySyntaxColoring(code, this.panelBar1);
                         this.saveSyntaxColoring(code);
                         this.invalidatePanels();
@@ -526,19 +526,19 @@ FBL.ns(function() {
                     getOptionsMenuItems: function() {
                         return [
                             {
-                                label: 'Import Color Preset ...',
+                                label: 'Import Color Theme ...',
                                 nol10n: true,
-                                command: bind(Firebug.FireRainbowModule.importPreset, Firebug.FireRainbowModule)
+                                command: bind(Firebug.FireRainbowModule.importTheme, Firebug.FireRainbowModule)
                             },{
-                                label: 'Randomize Color Preset',
+                                label: 'Randomize Color Theme',
                                 nol10n: true,
-                                command: bind(Firebug.FireRainbowModule.randomizePreset, Firebug.FireRainbowModule)
+                                command: bind(Firebug.FireRainbowModule.randomizeTheme, Firebug.FireRainbowModule)
                             },{
-                                label: 'Reset to default Color Preset',
+                                label: 'Reset to default Color Theme',
                                 nol10n: true,
-                                command: bind(Firebug.FireRainbowModule.resetToDefaultPreset, Firebug.FireRainbowModule)
+                                command: bind(Firebug.FireRainbowModule.resetToDefaultTheme, Firebug.FireRainbowModule)
                             },'-',{
-                                label: 'FireRainbow Website ...',
+                                label: 'Visit FireRainbow Website ...',
                                 nol10n: true,
                                 command: bind(Firebug.FireRainbowModule.visitWebsite, Firebug.FireRainbowModule)
                             }
