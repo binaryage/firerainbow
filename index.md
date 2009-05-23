@@ -28,7 +28,9 @@ Installation from sources
     cd firerainbow
     rake
     
-If all went right, you should find your fresh XPI under `build/firerainbow-X.Y.xpi`. You can install XPI file into Firefox by opening it via File -> Open File ...
+<a href="images/compilation.png"><img style="border: 2px solid #888;-moz-border-radius:2px;-webkit-border-radius:2px;" src="images/compilation.png" width="300"></a>
+
+If all went right, you should be able to find your fresh XPI under `build/firerainbow-X.Y.xpi`. You can install XPI file into Firefox by opening it via File -> Open File ...
 
 Themes
 ------
@@ -59,6 +61,7 @@ History
 * v1.0 (24.05.2009)
   * robust colorization of compressed scripts with long lines (previously parser halted) 
   * updated parser to CodeMirror 0.61
+  * new home for themes in github project
   * compatibility with Firebug 1.4
 
 * v0.9 (29.01.2009)
