@@ -15,7 +15,7 @@ FireRainbow brings javascript syntax highlighting to [Firebug][firebug]
 Installation
 ------------
 
-You need [Firebug 1.3][firebug] for latest version to work. The preferred way is to [install this Firefox extension][rainbow] via addons.mozilla.com.
+You need [Firebug 1.3][firebug]+ for latest version to work. The preferred way is to **[install this Firefox extension][rainbow]** via addons.mozilla.com.
 
 Note: If you are still stuck with Firebug 1.2, install [version 0.7][v07].
 
@@ -36,7 +36,7 @@ Themes
 ------
 <a name="themes"></a>
 
-Themes are available at [http://github.com/darwin/firerainbow/tree/master/themes]([http://github.com/darwin/firerainbow/tree/master/themes)
+Themes are available at [http://github.com/darwin/firerainbow/tree/master/themes](http://github.com/darwin/firerainbow/tree/master/themes)
 
 <a href="images/themes.png"><img style="border: 2px solid #888;-moz-border-radius:2px;-webkit-border-radius:2px;" src="images/themes.png" width="500"></a>
 
