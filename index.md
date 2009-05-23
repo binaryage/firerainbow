@@ -4,7 +4,7 @@ layout: wikistyle
 repo: http://github.com/darwin/firerainbow
 support: http://github.com/darwin/firerainbow/issues
 download: http://addons.mozilla.org/en-US/firefox/addon/9603
-version: Version 0.9
+version: Version 1.0
 ---
 
 FireRainbow brings javascript syntax highlighting to [Firebug][firebug]
@@ -15,16 +15,35 @@ FireRainbow brings javascript syntax highlighting to [Firebug][firebug]
 Installation
 ------------
 
-You need [Firebug 1.3][firebug] for latest version to work. 
-If you are still stuck with Firebug 1.2, install [version 0.7][v07].
+You need [Firebug 1.3][firebug] for latest version to work. The preferred way is to [install this Firefox extension][rainbow] via addons.mozilla.com.
 
-Preferred way is to [install this firefox extension][rainbow] via addons.mozilla.com.
+Note: If you are still stuck with Firebug 1.2, install [version 0.7][v07].
 
 Note: Some people have reported they are unable to download and install extension via addons.mozilla.com. In this case you may [try workaround][workaround].
+
+Installation from sources
+-------------------------
+
+    git clone git://github.com/darwin/firerainbow.git
+    cd firerainbow
+    rake
+    
+If all went right, you should find your fresh XPI under `build/firerainbow-X.Y.xpi`. You can install XPI file into Firefox by opening it via File -> Open File ...
+
+Themes
+------
+<a name="themes"></a>
+
+Themes are available at [http://github.com/darwin/firerainbow/tree/master/themes]([http://github.com/darwin/firerainbow/tree/master/themes)
+
+<a href="images/themes.png"><img style="border: 2px solid #888;-moz-border-radius:2px;-webkit-border-radius:2px;" src="images/themes.png" width="500"></a>
+
+And of course ... feel free to fork the project and contribute your very own theme.
 
 Current State
 -------------
 
+* Version 1.0 is tested to work with alpha Firebug 1.4
 * Version 0.9 is tested to work with offcial Firebug 1.3
 * Version 0.8 is tested to work with alpha Firebug 1.3
 * Version 0.7 is tested to work with official Firebug 1.2
@@ -37,7 +56,7 @@ Contributors
 History
 -------
 
-* v1.0 (to be released)
+* v1.0 (24.05.2009)
   * robust colorization of compressed scripts with long lines (previously parser halted) 
   * updated parser to CodeMirror 0.61
   * compatibility with Firebug 1.4
@@ -66,7 +85,6 @@ History
 [rainbow]: https://addons.mozilla.org/en-US/firefox/addon/9603
 [codemirror]: http://marijn.haverbeke.nl/codemirror/
 [homepage]: http://xrefresh.com/rainbow
-[presets]: http://xrefresh.com/presets
 [contact]: mailto:antonin@hildebrand.cz
 [workaround]: http://getsatisfaction.com/xrefresh/topics/unable_to_download_rainbow_for_firebug
 [satisfaction]: http://getsatisfaction.com
