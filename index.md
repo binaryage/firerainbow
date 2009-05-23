@@ -59,30 +59,30 @@ History
 -------
 
 * v1.0 (24.05.2009)
-  * robust colorization of compressed scripts with long lines (previously parser halted) 
-  * updated parser to CodeMirror 0.61
-  * new home for themes in github project
-  * compatibility with Firebug 1.4
+  * [[darwin][darwin]] robust colorization of compressed scripts with long lines (previously parser halted) 
+  * [[darwin][darwin]] updated parser to CodeMirror 0.61
+  * [[darwin][darwin]] new home for themes in github project
+  * [[darwin][darwin]] compatibility with Firebug 1.4
 
 * v0.9 (29.01.2009)
-  * updated parser to CodeMirror 0.60
-  * fixed glitch when script didn't get colorized on first display in Firebug 1.4
-  * tested to work with official Firebug 1.3 and Firefox 3.0.5 (worked also with alpha Firebug 1.4 and nightly Firefox 3.1)
+  * [[darwin][darwin]] updated parser to CodeMirror 0.60
+  * [[darwin][darwin]] fixed glitch when script didn't get colorized on first display in Firebug 1.4
+  * [[darwin][darwin]] tested to work with official Firebug 1.3 and Firefox 3.0.5 (worked also with alpha Firebug 1.4 and nightly Firefox 3.1)
 
 * v0.8 (15.11.2008)
-  * reimplemented for changes in Firebug 1.3 (not compatible with Firebug 1.2 anymore)
-  * added "Reset to default Color Preset" feature
-  * changed extension guid, to distinguish from 0.7
+  * [[darwin][darwin]] reimplemented for changes in Firebug 1.3 (not compatible with Firebug 1.2 anymore)
+  * [[darwin][darwin]] added "Reset to default Color Preset" feature
+  * [[darwin][darwin]] changed extension guid, to distinguish from 0.7
 
 * v0.7 (27.08.2008)
-  * added mixed HTML/CSS/JS coloring
-  * added "Randomize Color Preset" feature
-  * when installed with old firebug, error message is written into Firefox's error console
-  * fixed bug preventing proper coloring in some rare cases
+  * [[darwin][darwin]] added mixed HTML/CSS/JS coloring
+  * [[darwin][darwin]] added "Randomize Color Preset" feature
+  * [[darwin][darwin]] when installed with old firebug, error message is written into Firefox's error console
+  * [[darwin][darwin]] fixed bug preventing proper coloring in some rare cases
 
 * v0.6 (14.06.2008)
-  * public beta release
-  * hacked first version for Firebug 1.2
+  * [[darwin][darwin]] public beta release
+  * [[darwin][darwin]] hacked first version for Firebug 1.2
 
 [firebug]: https://addons.mozilla.org/en-US/firefox/addon/1843
 [rainbow]: https://addons.mozilla.org/en-US/firefox/addon/9603
@@ -92,3 +92,4 @@ History
 [workaround]: http://getsatisfaction.com/xrefresh/topics/unable_to_download_rainbow_for_firebug
 [satisfaction]: http://getsatisfaction.com
 [v07]: https://addons.mozilla.org/en-US/developers/details/7575
+[darwin]: http://github.com/darwin
