@@ -34,21 +34,21 @@ overlaycy: 10px
 
 ## Features
 
-* Mixed syntax highlighting 
+* **Mixed syntax highlighting** powered by [CodeMirror][codemirror]
 	* Javascript
 	* HTML
 	* CSS
 * Advanced features:
-	* Color theme can be defined using Firebug's CSS panel
+	* Color theme can be modified using Firebug's CSS panel
 	* Highlighting is applied incrementally (good performance)
 	* Color themes available [on GitHub](http://github.com/darwin/firerainbow/tree/master/themes)
 
 ### Compatibility
 
-* Version 1.0 is tested to work with alpha Firebug 1.4
-* Version 0.9 is tested to work with offcial Firebug 1.3
-* Version 0.8 is tested to work with alpha Firebug 1.3
-* Version 0.7 is tested to work with official Firebug 1.2
+* **Version 1.0** is tested to work with official **Firebug 1.4** (Firefox 3.0 and 3.5)
+* **Version 0.9** is tested to work with official **Firebug 1.3**
+* **Version 0.8** is tested to work with alpha **Firebug 1.3**
+* **Version 0.7** is tested to work with official **Firebug 1.2**
 
 ## Installation
 
