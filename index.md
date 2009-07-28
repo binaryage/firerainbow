@@ -70,11 +70,12 @@ If all went right, you should be able to find your fresh XPI under `build/firera
 
 ## Themes
 
-Themes are available at [http://github.com/darwin/firerainbow/tree/master/themes](http://github.com/darwin/firerainbow/tree/master/themes)
+Themes are available at **[http://github.com/darwin/firerainbow/tree/master/themes](http://github.com/darwin/firerainbow/tree/master/themes)**
 
-<a href="http://github.com/darwin/firerainbow/tree/master/themes"><img style="border: 2px solid #888;-moz-border-radius:2px;-webkit-border-radius:2px;" src="images/themes.png" width="920"></a>
+<br>
+<a href="http://github.com/darwin/firerainbow/tree/master/themes"><img style="border: 2px solid #888;-moz-border-radius:2px;-webkit-border-radius:2px;" src="images/themes.png" width="500"></a>
 
-Feel free to fork the project and contribute with your very own theme.
+Feel free to fork the project and contribute your very own theme.
 
 ## History
 
