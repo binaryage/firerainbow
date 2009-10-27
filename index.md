@@ -1,5 +1,6 @@
 ---
-title: FireRainbow
+title: FireRainbow = javascript syntax highlighting for Firebug
+product_title: FireRainbow
 subtitle: brings javascript syntax highlighting to Firebug
 layout: product
 icon: /shared/img/firerainbow-icon.png
@@ -7,8 +8,6 @@ repo: http://github.com/darwin/firerainbow
 support: http://github.com/darwin/firerainbow/issues
 downloadtitle: Install v1.0
 download: https://addons.mozilla.org/en-US/firefox/addon/9603
-downloadboxwidth: 210px
-donate: https://addons.mozilla.org/en-US/firefox/addons/contribute/9603?source=addon-detail
 subdownload: 
 subdownloadlink:
 mainshot: /shared/img/firerainbow-mainshot.png
@@ -17,20 +16,10 @@ overlaysx: 880px
 overlaysy: 608px
 overlaycx: 25px
 overlaycy: 10px
+facebook: 1
+retweet: 1
+digg: 1
 ---
-
-<div class="advertisement">
-	<div class="plug">Recommended reading:</div>
-	<a href="http://www.amazon.com/gp/product/0596517742?ie=UTF8&tag=firerainbow-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=0596517742"><img border="0" src="/shared/img/amazon/41xtPRcBfXL._SL110_.jpg"></a><img src="http://www.assoc-amazon.com/e/ir?t=firerainbow-20&l=as2&o=1&a=0596517742" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-	
-	<a href="http://www.amazon.com/gp/product/0596101996?ie=UTF8&tag=firerainbow-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=0596101996"><img border="0" src="/shared/img/amazon/41IVmVYhRNL._SL110_.jpg"></a><img src="http://www.assoc-amazon.com/e/ir?t=firerainbow-20&l=as2&o=1&a=0596101996" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-
-	<a href="http://www.amazon.com/gp/product/0596529309?ie=UTF8&tag=firerainbow-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=0596529309"><img border="0" src="/shared/img/amazon/41HmS6aFftL._SL110_.jpg"></a><img src="http://www.assoc-amazon.com/e/ir?t=firerainbow-20&l=as2&o=1&a=0596529309" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-
-	<div class="offer"><a href="mailto:antonin@binaryage.com">advertise here</a></div>
-</div>
-<script type="text/javascript" src="http://www.assoc-amazon.com/s/link-enhancer?tag=firerainbow-20&o=1">
-</script>
 
 ## Features
 
