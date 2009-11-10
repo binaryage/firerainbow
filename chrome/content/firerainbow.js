@@ -1,7 +1,3 @@
-// This source contains copy&pasted various bits from Firebug sources.
-//
-
-// open custom scope
 FBL.ns(function() {
     with (FBL) {
         // some people reported that rainbow was initialised twice
@@ -209,20 +205,20 @@ FBL.ns(function() {
                         var tokensPerCall = this.getPref('tokensPerCall', 500);
                         var daemonInterval = this.getPref('daemonInterval', 100);
 
-						var refresh = function() {
+                        var refresh = function() {
                             // do review to be sure actual view gets finaly colorized
                             if (that.actualScriptPanel) {
                                 sourceBox.preventRainbowRecursion = true;
                                 dbg("Rainbow: reView!", sourceBox);
                                 that.actualScriptPanel.lastScrollTop = that.actualScriptPanel.lastScrollTop || 0;
                                 that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
-								sourceBox.firstViewableLine = -1; // overcome another layer of reView optimization added in Firebug 1.4
+                                sourceBox.firstViewableLine = -1; // overcome another layer of reView optimization added in Firebug 1.4
                                 that.actualScriptPanel.reView(sourceBox);
                             }
-						};
+                        };
 
                         var finish = function() {
-							refresh();
+                            refresh();
                             that.stopDaemon();
                             sourceBox.colorized = true;
                             // free up memory
@@ -234,51 +230,51 @@ FBL.ns(function() {
                         this.daemonTimer = setInterval(
                             function() {
                                 try {
-									var tokenQuota = tokensPerCall;
-									var startLine = sourceBox.lineToBeColorized;
+                                    var tokenQuota = tokensPerCall;
+                                    var startLine = sourceBox.lineToBeColorized;
                                     while (true) {
-										if (!sourceBox.hasLine) {
-	                                        // finish if no more lines
-	                                        if (sourceBox.lineToBeColorized >= sourceBox.lines.length) {
-	                                            return finish();
-	                                        }
-											
-	                                        // extract line code from node
-	                                        // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
-	                                        nextLine = sourceBox.lines[sourceBox.lineToBeColorized]+"\n";
+                                        if (!sourceBox.hasLine) {
+                                            // finish if no more lines
+                                            if (sourceBox.lineToBeColorized >= sourceBox.lines.length) {
+                                                return finish();
+                                            }
+                                            
+                                            // extract line code from node
+                                            // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
+                                            nextLine = sourceBox.lines[sourceBox.lineToBeColorized]+"\n";
 
-											sourceBox.parsedLine = [];
-											sourceBox.hasLine = true;
-										}
-										
+                                            sourceBox.parsedLine = [];
+                                            sourceBox.hasLine = true;
+                                        }
+                                        
                                         forEach(sourceBox.parser,
                                             function(token) {
-	                                            // colorize token
+                                                // colorize token
                                                 var val = token.value;
                                                 sourceBox.parsedLine.push('<span class="' + token.style + '">' + escapeHTML(val) + '</span>');
                                                 that.styleLibrary[token.style] = true;
-												if (--tokenQuota==0) {
-													throw StopIteration;
-												}
+                                                if (--tokenQuota==0) {
+                                                    throw StopIteration;
+                                                }
                                             }
                                         );
-										
-										if (!tokenQuota) {
-											return;
-										}
+                                        
+                                        if (!tokenQuota) {
+                                            return;
+                                        }
                                     
                                         // apply coloring to the line
                                         sourceBox.colorizedLines.push(sourceBox.parsedLine.join('').replace(/\n/g, ''));
 
-	                                    if (startLine && startLine<=sourceBox.lastViewableLine && sourceBox.lineToBeColorized>=sourceBox.lastViewableLine) {
-	                                        // just crossed actual view, force refresh!
-											refresh();
-											startLine = null;
-	                                    }
-	
+                                        if (startLine && startLine<=sourceBox.lastViewableLine && sourceBox.lineToBeColorized>=sourceBox.lastViewableLine) {
+                                            // just crossed actual view, force refresh!
+                                            refresh();
+                                            startLine = null;
+                                        }
+    
                                         // move for next line
                                         sourceBox.lineToBeColorized++;
-										sourceBox.hasLine = false;
+                                        sourceBox.hasLine = false;
                                     }
                                 } catch (ex) {
                                     dbg("Rainbow: exception", ex);
@@ -552,4 +548,4 @@ FBL.ns(function() {
             }
         }
     }
-}); // close custom scope
+});
