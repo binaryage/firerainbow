@@ -53,13 +53,104 @@ FBL.ns(function() {
                         // patch sourcebox render functionality
                         if (!sourceBox.rainbowPatched) {
                             sourceBox.rainbowPatched = true;
-                            sourceBox.getLineAsHTML = function(lineNo) {
-                                if (this.colorizedLines) {
-                                    var line = this.colorizedLines[lineNo];
-                                    if (line!=undefined) return line;
+                            
+                            if (sourceBox.getLineAsHTML) { // Firebug 1.3 and 1.4 path
+                                // 1. I use Firebug.Extension.onApplyDecorator mechanism to get called
+                                // for every sourceBox which is about be displayed
+                                // 2. first time a source box is seen, I patch sourceBox.getLineAsHTML
+                                // with my "slightly smarter" version
+                                // 3. for given sourceBox I trigger "daemon process", which starts
+                                // coloring off-screen buffer of all lines (not just visible ones) =>
+                                // sourceBox.colorizedLines
+                                // 
+                                // Every time Firebug needs to render lines, it calls getLineAsHTML on
+                                // sourceBox, so it calls my version of that function and I return
+                                // colorized line in case I have it ready.
+                                // 
+                                // Note: In the case daemon just crossed actual viewport, I'm trying to
+                                // force source panel to refresh it's content calling
+                                // scriptPanel.reView(sourceBox);.
+                                // This is tricky, because reView has implemented several layers of
+                                // caching, continuously being added with newer versions, which makes my
+                                // life harder :-)
+                                // If anyone knows better a function to call, I would be happy to make
+                                // this more robust.
+                                if (!sourceBox._rainbowOriginalGetLineAsHTML) {
+                                    sourceBox._rainbowOriginalGetLineAsHTML = sourceBox.getLineAsHTML;
+                                    sourceBox.getLineAsHTML = function(lineNo) {
+                                        if (this.colorizedLines) {
+                                            var line = this.colorizedLines[lineNo];
+                                            if (line!==undefined) return line;
+                                        }
+                                        return this._rainbowOriginalGetLineAsHTML(lineNo);
+                                    };
                                 }
-                                return escapeHTML(this.lines[lineNo]);
-                            };
+                            }
+                            
+                            if (sourceBox.decorator) { // Firebug 1.5 path
+                                // here I patch getLineHTML and using similar technique like for Firebug 1.3 and 1.4
+                                // when firebug needs to render lines it asks getLineHTML to provide HTML version of every line
+                                // this is quite fast and reasonably smooth when scrolling
+                                
+                                // but it is not enough!
+                                // rainbow daemon may not have lines colorized at the time firebug is rendering/asking for them
+                                // so in this case I return uncolorized original line (which is always available)
+                                // with the new Firebug 1.5 I was unable to find a way how to force scriptPanel to
+                                // safely re-render viewport so getLineHTML is called again for all uncolorized lines
+                                // in older versions tricky call to reView did the work
+                                // there is some kind of new caching so my attempts to call reView do not lead to re-rendering
+                                // some more info may be here: http://groups.google.com/group/firebug-working-group/web/sourcebox-viewports
+                                //
+                                if (!sourceBox.decorator._rainbowOriginalGetLineHTML) {
+                                    sourceBox.decorator._rainbowOriginalGetLineHTML = sourceBox.decorator.getLineHTML;
+                                    sourceBox.decorator.getLineHTML = function(sourceBox, lineNo) {
+                                        if (sourceBox.colorizedLines) {
+                                            var line = sourceBox.colorizedLines[lineNo-1];
+                                            if (line!==undefined) return '<span class="rainbow-line-wrapper">'+line+'</span>';
+                                        }
+                                        return this._rainbowOriginalGetLineHTML(lineNo);
+                                    };
+                                }
+                                // patching getLineHTML is not enough, but I don't want to break code for older version so I'm using decorate to finish the work
+                                // sourceBox.decorator.decorate is a new way how post-process viewport AFTER all lines were rendered
+                                // I simply go through all rendered lines and replace plain-text line version with colorize HTML version
+                                // this would be enough for rainbow to work reliably (decorate is properly called every time on update)
+                                // but the drawback is that this is painfully slow, when scrolling rendering is choking on my machine 
+                                // (and you can bet I have pretty good machine)
+                                // 
+                                // final solution: getLineHTML does what it can, because it is fast
+                                //                 rendered lines are wrapped and marked with rainbow-line-wrapper class
+                                //                 decorate does the rest of the work where rainbow-line-wrapper is missing
+                                //                 simply we get best of both worlds
+                                //
+                                // I'm not satisfied with this solution. I hope we will find a way how to do reliable reView in the future.
+                                if (!sourceBox.decorator._rainbowOriginalDecorate) {
+                                    sourceBox.decorator._rainbowOriginalDecorate = sourceBox.decorator.decorate;
+                                    sourceBox.decorator.decorate = function(sourceBox, sourceFile) {
+                                        var res = this._rainbowOriginalDecorate(sourceBox, sourceFile);
+                                        if (sourceBox.colorizedLines) {
+                                            var lineNo = sourceBox.firstViewableLine;
+                                            while (lineNode = sourceBox.getLineNode(lineNo)) {
+                                                var textNode = lineNode.childNodes[1]; // faster version of getElementByClass(lineNode, 'sourceRowText');
+                                                if (textNode) {
+                                                    // skip already colorized lines for performance reasons
+                                                    if (!(textNode.childNodes.length && textNode.childNodes[0].className=='rainbow-line-wrapper')) {
+                                                        var line = sourceBox.colorizedLines[lineNo-1]; // line numbers are 1-based in this API
+                                                        if (line!==undefined) {
+                                                            // this is quite slow, causes scrolling to choke
+                                                            // my explanation: every innerHTML assignement causes sourceBox viewport to reflow
+                                                            //                 we do it for every single visible line during single scrollposition change (approx 150x on my display)
+                                                            textNode.innerHTML = '<span class="rainbow-line-wrapper">'+line+'</span>'; 
+                                                        }
+                                                    }
+                                                }
+                                                lineNo++;
+                                            }
+                                        }
+                                        return res;
+                                    };
+                                }
+                            }
                         }
                         // prevent recursion in case we call reView
                         if (sourceBox.preventRainbowRecursion) {
@@ -145,7 +236,8 @@ FBL.ns(function() {
                     startDaemon: function(sourceBox) {
                         // daemon is here to perform colorization in background
                         // the goal is not to block Firebug functionality and don't hog CPU for too long
-                        // daemonInterval and linesPerCall properties define how intensive this background process should be
+                        // daemonInterval and tokensPerCall properties define how intensive this background process should be
+                        // TODO: rewrite this using background workers
                         if (this.currentSourceBox===sourceBox) return;
 
                         this.stopDaemon(); // never let run two or more daemons concruently!
@@ -250,7 +342,13 @@ FBL.ns(function() {
                                         }
                                     
                                         // apply coloring to the line
-                                        sourceBox.colorizedLines.push(sourceBox.parsedLine.join('').replace(/\n/g, ''));
+                                        var newLine = sourceBox.parsedLine.join('').replace(/\n/g, '');
+                                        // if the pref says so, replace tabs by corresponding number of spaces.
+                                        if (Firebug.replaceTabs > 0) {
+                                            var space = new Array(Firebug.replaceTabs + 1).join(" ");
+                                            newLine = newLine.replace(/\t/g, space);
+                                        }
+                                        sourceBox.colorizedLines.push(newLine);
 
                                         if (startLine && startLine<=sourceBox.lastViewableLine && sourceBox.lineToBeColorized>=sourceBox.lastViewableLine) {
                                             // just crossed actual view, force refresh!
