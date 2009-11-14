@@ -106,7 +106,7 @@ FBL.ns(function() {
                                     sourceBox.decorator.getLineHTML = function(sourceBox, lineNo) {
                                         if (sourceBox.colorizedLines) {
                                             var line = sourceBox.colorizedLines[lineNo-1];
-                                            if (line!==undefined) return '<span class="rainbow-line-wrapper">'+line+'</span>';
+                                            if (line!==undefined) return line;
                                         }
                                         return this._rainbowOriginalGetLineHTML(lineNo);
                                     };
@@ -124,32 +124,32 @@ FBL.ns(function() {
                                 //                 simply we get best of both worlds
                                 //
                                 // I'm not satisfied with this solution. I hope we will find a way how to do reliable reView in the future.
-                                if (!sourceBox.decorator._rainbowOriginalDecorate) {
-                                    sourceBox.decorator._rainbowOriginalDecorate = sourceBox.decorator.decorate;
-                                    sourceBox.decorator.decorate = function(sourceBox, sourceFile) {
-                                        var res = this._rainbowOriginalDecorate(sourceBox, sourceFile);
-                                        if (sourceBox.colorizedLines) {
-                                            var lineNo = sourceBox.firstViewableLine;
-                                            while (lineNode = sourceBox.getLineNode(lineNo)) {
-                                                var textNode = lineNode.childNodes[1]; // faster version of getElementByClass(lineNode, 'sourceRowText');
-                                                if (textNode) {
-                                                    // skip already colorized lines for performance reasons
-                                                    if (!(textNode.childNodes.length && textNode.childNodes[0].className=='rainbow-line-wrapper')) {
-                                                        var line = sourceBox.colorizedLines[lineNo-1]; // line numbers are 1-based in this API
-                                                        if (line!==undefined) {
-                                                            // this is quite slow, causes scrolling to choke
-                                                            // my explanation: every innerHTML assignement causes sourceBox viewport to reflow
-                                                            //                 we do it for every single visible line during single scrollposition change (approx 150x on my display)
-                                                            textNode.innerHTML = '<span class="rainbow-line-wrapper">'+line+'</span>'; 
-                                                        }
-                                                    }
-                                                }
-                                                lineNo++;
-                                            }
-                                        }
-                                        return res;
-                                    };
-                                }
+                                // if (!sourceBox.decorator._rainbowOriginalDecorate) {
+                                //     sourceBox.decorator._rainbowOriginalDecorate = sourceBox.decorator.decorate;
+                                //     sourceBox.decorator.decorate = function(sourceBox, sourceFile) {
+                                //         var res = this._rainbowOriginalDecorate(sourceBox, sourceFile);
+                                //         if (sourceBox.colorizedLines) {
+                                //             var lineNo = sourceBox.firstViewableLine;
+                                //             while (lineNode = sourceBox.getLineNode(lineNo)) {
+                                //                 var textNode = lineNode.childNodes[1]; // faster version of getElementByClass(lineNode, 'sourceRowText');
+                                //                 if (textNode) {
+                                //                     // skip already colorized lines for performance reasons
+                                //                     if (!(textNode.childNodes.length && textNode.childNodes[0].className=='rainbow-line-wrapper')) {
+                                //                         var line = sourceBox.colorizedLines[lineNo-1]; // line numbers are 1-based in this API
+                                //                         if (line!==undefined) {
+                                //                             // this is quite slow, causes scrolling to choke
+                                //                             // my explanation: every innerHTML assignement causes sourceBox viewport to reflow
+                                //                             //                 we do it for every single visible line during single scrollposition change (approx 150x on my display)
+                                //                             textNode.innerHTML = '<span class="rainbow-line-wrapper">'+line+'</span>'; 
+                                //                         }
+                                //                     }
+                                //                 }
+                                //                 lineNo++;
+                                //             }
+                                //         }
+                                //         return res;
+                                //     };
+                                // }
                             }
                         }
                         // prevent recursion in case we call reView
@@ -282,6 +282,8 @@ FBL.ns(function() {
 
                         var tokensPerCall = this.getPref('tokensPerCall', 500);
                         var daemonInterval = this.getPref('daemonInterval', 100);
+                        
+                        tokensPerCall = 10;
 
                         var refresh = function() {
                             // do review to be sure actual view gets finaly colorized
@@ -291,7 +293,7 @@ FBL.ns(function() {
                                 that.actualScriptPanel.lastScrollTop = that.actualScriptPanel.lastScrollTop || 0;
                                 that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
                                 sourceBox.firstViewableLine = -1; // overcome another layer of reView optimization added in Firebug 1.4
-                                that.actualScriptPanel.reView(sourceBox);
+                                that.actualScriptPanel.reView(sourceBox, true);
                             }
                         };
 
