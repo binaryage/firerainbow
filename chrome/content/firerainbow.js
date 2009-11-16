@@ -187,6 +187,67 @@ FBL.ns(function() {
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     startDaemon: function(sourceBox) {
+                        dbg("Rainbow: startDaemon", sourceBox);
+                        if (Worker) {
+                            this.startDaemonAsWorkerThread(sourceBox);
+                        } else {
+                            this.startDaemonOnUIThread(sourceBox);
+                        }
+                    },
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    stopDaemon: function() {
+                        dbg("Rainbow: stopDaemon");
+                        if (Worker) {
+                            this.stopDaemonAsWorkerThread();
+                        } else {
+                            this.stopDaemonOnUIThread();
+                        }
+                    },
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    startDaemonAsWorkerThread: function(sourceBox) {
+                        // daemon is here to perform colorization in background
+                        // this is origianl daemon rewrite using web workers
+                        if (this.currentSourceBox===sourceBox) return;
+
+                        this.stopDaemon(); // never let run two or more daemons concruently!
+
+                        // find active source box - here we will keep daemon state (parser state)
+                        if (!sourceBox) return;
+                        if (!sourceBox.lines) return;
+                        if (sourceBox.colorized) return; // already colorized
+                        
+                        dbg("Rainbow: startDaemonAsWorkerThread", sourceBox);
+                        
+                        this.currentSourceBox = sourceBox;
+                        if (sourceBox.lineToBeColorized==undefined) sourceBox.lineToBeColorized = 0;
+                        if (!sourceBox.colorizedLines) sourceBox.colorizedLines = [];
+                        
+                        var that = this;
+                        this.parserWorker = new Worker('chrome://firerainbow/content/worker.js');
+                        this.parserWorker.onmessage = function(e) {
+                            dbg("Rainbow: got worker message "+e.data.msg, e.data);
+                            switch (e.data.msg) {
+                                case 'done': 
+                                    that.parserWorker = undefined;
+                                    that.styleLibrary = e.data.styleLibrary;
+                                    break;
+                            }
+                        };
+                        this.parserWorker.onerror = function(e) {
+                            dbg("Rainbow: worker error", e);
+                            // stop daemon in this exceptional case
+                            that.stopDaemon();
+                            sourceBox.colorized = true;
+                            sourceBox.colorizationFailed = true;
+                            return;
+                        };
+                        this.parserWorker.postMessage({
+                            command: 'run',
+                            lines: sourceBox.lines // ['hello world']
+                        });
+                    },
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    startDaemonOnUIThread: function(sourceBox) {
                         // daemon is here to perform colorization in background
                         // the goal is not to block Firebug functionality and don't hog CPU for too long
                         // daemonInterval and tokensPerCall properties define how intensive this background process should be
@@ -200,7 +261,7 @@ FBL.ns(function() {
                         if (!sourceBox.lines) return;
                         if (sourceBox.colorized) return; // already colorized
 
-                        dbg("Rainbow: startDaemon", sourceBox);
+                        dbg("Rainbow: startDaemonOnUIThread", sourceBox);
                         
                         this.currentSourceBox = sourceBox;
                         if (sourceBox.lineToBeColorized==undefined) sourceBox.lineToBeColorized = 0;
@@ -327,9 +388,16 @@ FBL.ns(function() {
                         daemonInterval);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
-                    stopDaemon: function() {
+                    stopDaemonAsWorkerThread: function() {
+                        if (!this.parserWorker) return;
+                        dbg("Rainbow: stopDaemonAsWorkerThread");
+                        this.parserWorker.terminate();
+                        this.parserWorker = undefined;
+                    },
+                    /////////////////////////////////////////////////////////////////////////////////////////
+                    stopDaemonOnUIThread: function() {
                         if (!this.daemonTimer) return;
-                        dbg("Rainbow: stopDaemon");
+                        dbg("Rainbow: stopDaemonOnUIThread");
                         clearInterval(this.daemonTimer);
                         this.daemonTimer = undefined;
                         this.currentSourceBox = undefined;

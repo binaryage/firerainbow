@@ -1,6 +1,6 @@
 /* A few useful utility functions. */
 
-var internetExplorer = document.selection && window.ActiveXObject && /MSIE/.test(navigator.userAgent);
+var internetExplorer = false; // document.selection && window.ActiveXObject && /MSIE/.test(navigator.userAgent);
 var webkit = /AppleWebKit/.test(navigator.userAgent);
 var safari = /Apple Computers, Inc/.test(navigator.vendor);
 
