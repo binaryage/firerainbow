@@ -6,7 +6,7 @@ layout: product
 icon: /shared/img/firerainbow-icon.png
 repo: http://github.com/darwin/firerainbow
 support: http://github.com/darwin/firerainbow/issues
-downloadtitle: Install v1.0
+downloadtitle: Install v1.1
 download: https://addons.mozilla.org/en-US/firefox/addon/9603
 subdownload: 
 subdownloadlink:
