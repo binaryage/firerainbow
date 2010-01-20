@@ -34,6 +34,7 @@ digg: 1
 
 ### Compatibility
 
+* **Version 1.1** is tested to work with official **Firebug 1.5** (Firefox 3.5 and 3.6) <- it is not compatible with **Firebug 1.4** anymore
 * **Version 1.0** is tested to work with official **Firebug 1.4** (Firefox 3.0 and 3.5)
 * **Version 0.9** is tested to work with official **Firebug 1.3**
 * **Version 0.8** is tested to work with alpha **Firebug 1.3**
@@ -41,9 +42,11 @@ digg: 1
 
 ## Installation
 
-You need [Firebug 1.3][firebug]+ for latest version to work. The preferred way is to **[install this Firefox extension][rainbow]** via addons.mozilla.com.
+You need [Firebug 1.5][firebug]+ for latest version to work. The preferred way is to **[install this Firefox extension][rainbow]** via addons.mozilla.com.
 
 Note: If you are still stuck with Firebug 1.2, install [version 0.7][v07].
+
+Note: If you are still stuck with Firebug 1.4, install [version 1.0][v10].
 
 Note: Some people have reported they are unable to download and install extension via addons.mozilla.com. In this case you may [try workaround][workaround].
 
@@ -67,6 +70,10 @@ Themes are available at **[http://github.com/darwin/firerainbow/tree/master/them
 Feel free to fork the project and contribute your very own theme.
 
 ## History
+
+* **v1.1** (20.01.2010)
+  * [[darwin][darwin]] fixed Firebug 1.5 compatibility and dropped Firebug 1.4 compatibility
+  * [[darwin][darwin]] marked as compatible with Firebug 1.6
 
 * **v1.0** (24.05.2009)
   * [[darwin][darwin]] robust colorization of compressed scripts with long lines (previously parser halted) 
@@ -107,4 +114,5 @@ Feel free to fork the project and contribute your very own theme.
 [workaround]: http://getsatisfaction.com/xrefresh/topics/unable_to_download_rainbow_for_firebug
 [satisfaction]: http://getsatisfaction.com
 [v07]: https://addons.mozilla.org/en-US/developers/details/7575
+[v10]: https://addons.mozilla.org/en-US/firefox/addons/versions/9603#version-1.0
 [darwin]: http://github.com/darwin
