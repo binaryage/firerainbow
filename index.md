@@ -1,36 +1,31 @@
 ---
-title: FireRainbow = javascript syntax highlighting for Firebug
-product_title: FireRainbow
-subtitle: brings javascript syntax highlighting to Firebug
 layout: product
-icon: /shared/img/firerainbow-icon.png
-repo: http://github.com/darwin/firerainbow
-support: http://github.com/darwin/firerainbow/issues
-downloadtitle: Install v1.1
+title: FireRainbow enables javascript syntax highlighting for Firebug
+product_title: FireRainbow
+product_subtitle: javascript syntax highlighting for Firebug
 download: https://addons.mozilla.org/en-US/firefox/addon/9603
-subdownload: 
-subdownloadlink:
-mainshot: /shared/img/firerainbow-mainshot.png
-mainshotfull: /shared/img/firerainbow-mainshot-full.png
-overlaysx: 880px
-overlaysy: 608px
-overlaycx: 25px
-overlaycy: 10px
+repo: http://github.com/darwin/firerainbow
+downloadtitle: Install 1.1
 facebook: 1
 retweet: 1
-digg: 1
+nothumbs: 1
+shots: [{
+    title: "FireRainbow in action! Please note colors tab on the right side. You may tweak colors via CSS!",
+    thumb: "/shared/img/firerainbow-mainshot.png",
+    full: "/shared/img/firerainbow-mainshot-full.png"
+}]
 ---
 
 ## Features
 
 * **Mixed syntax highlighting** powered by [CodeMirror][codemirror]
-	* Javascript
-	* HTML
-	* CSS
+  * Javascript
+  * HTML
+  * CSS
 * Advanced features:
-	* Color theme can be modified using Firebug's CSS panel
-	* Highlighting is applied incrementally (good performance)
-	* Color themes available [on GitHub](http://github.com/darwin/firerainbow/tree/master/themes)
+  * Color theme can be modified using Firebug's CSS panel
+  * Highlighting is applied incrementally (good performance)
+  * Color themes available [on GitHub](http://github.com/darwin/firerainbow/tree/master/themes)
 
 ### Compatibility
 
@@ -69,7 +64,13 @@ Themes are available at **[http://github.com/darwin/firerainbow/tree/master/them
 
 Feel free to fork the project and contribute your very own theme.
 
-## History
+## Changelog
+
+### Contributors
+
+* **Marijn Haverbeke** - this extension uses his great [CodeMirror][codemirror] for javascript/html/css parsing.
+
+### History
 
 * **v1.1** (20.01.2010)
   * [[darwin][darwin]] fixed Firebug 1.5 compatibility and dropped Firebug 1.4 compatibility
@@ -100,10 +101,6 @@ Feel free to fork the project and contribute your very own theme.
 * **v0.6** (14.06.2008)
   * [[darwin][darwin]] public beta release
   * [[darwin][darwin]] hacked first version for Firebug 1.2
-
-### Contributors
-
-* **Marijn Haverbeke** - this extension uses his great [CodeMirror][codemirror] for javascript/html/css parsing.
 
 
 [firebug]: https://addons.mozilla.org/en-US/firefox/addon/1843
