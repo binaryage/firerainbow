@@ -9,6 +9,17 @@ downloadtitle: Install 1.1
 facebook: 1
 retweet: 1
 nothumbs: 1
+buzz: 1
+fbsdk: 1
+ogmeta: {
+    site_name: "BinaryAge website",
+    description: "FireRainbow enables javascript syntax highlighting for Firebug",
+    email: "antonin@binaryage.com",
+    type: "product",
+    title: "FireRainbow",
+    url: "http://firerainbow.binaryage.com",
+    image: "http://www.binaryage.com/shared/img/icons/firerainbow-64.png"
+}
 shots: [{
     title: "FireRainbow in action! Please note colors tab on the right side. You may tweak colors via CSS!",
     thumb: "/shared/img/firerainbow-mainshot.png",
