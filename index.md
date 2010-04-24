@@ -18,7 +18,7 @@ ogmeta: {
     type: "product",
     title: "FireRainbow",
     url: "http://firerainbow.binaryage.com",
-    image: "http://www.binaryage.com/shared/img/icons/firerainbow-128.png"
+    image: "http://www.binaryage.com/shared/img/icons/firerainbow-256.png"
 }
 shots: [{
     title: "FireRainbow in action! Please note colors tab on the right side. You may tweak colors via CSS!",
