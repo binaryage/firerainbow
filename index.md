@@ -6,6 +6,10 @@ product_subtitle: javascript syntax highlighting for Firebug
 download: https://addons.mozilla.org/en-US/firefox/addon/9603
 repo: http://github.com/darwin/firerainbow
 downloadtitle: Install 1.1
+meta_title: FireRainbow enables javascript syntax highlighting for Firebug
+meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
+meta_description: FireRainbow enables javascript syntax highlighting for Firebug
+meta_image: http://www.binaryage.com/shared/img/icons/firerainbow-256.png
 facebook: 1
 retweet: 1
 nothumbs: 1
