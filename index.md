@@ -33,6 +33,7 @@ shots: [{
 }]
 ---
 
+
 ## Features
 
 * **Mixed syntax highlighting** powered by [CodeMirror][codemirror]
