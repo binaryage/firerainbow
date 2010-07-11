@@ -16,6 +16,7 @@ facebook: 1
 retweet: 1
 buzz: 1
 fbsdk: 1
+flattr: http://firerainbow.binaryage.com
 ogmeta: {
     site_name: "BinaryAge website",
     description: "FireRainbow enables javascript syntax highlighting for Firebug",
