@@ -38,11 +38,11 @@ FBL.ns(function() {
                     } catch(e) {}
                 }
 
-                function dbg() {
+                var dbg = function() {
                     if (FBTrace && FBTrace.DBG_FIRERAINBOW) { 
                         FBTrace.sysout.apply(this, arguments);
                     }
-                }
+                };
 
                 ////////////////////////////////////////////////////////////////////////
                 // Firebug.FireRainbowExtension
@@ -182,7 +182,7 @@ FBL.ns(function() {
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     storeCode: function(code) {
-                        var code = "/* version:"+currentCodeVersion+" */\n"+code;
+                        code = "/* version:"+currentCodeVersion+" */\n"+code;
                         this.setPref('coloring', code);
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
