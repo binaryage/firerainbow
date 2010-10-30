@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Example for mixed HTML/JS/CSS coloring</title>
+    <title>FireRainbow Test Page</title>
     <script type="text/javascript">
       /* javascript comment */
       function foo(bar, baz) {
@@ -10,6 +10,9 @@
     </script>
     <style type="text/css">
       /* css comment */
+      body {
+          font-family: arial;
+      }
       div.border {
         border: 1px solid black;
         padding: 3px;
@@ -21,10 +24,13 @@
       }
     </style>
   </head>
-  <body id="page1">
-    <div class="center">
+  <body>
+    <h1>FireRainbow Test Page</h1>
+    <h2>An example of mixed HTML/JS/CSS coloring</h2>
+    <div>
       <!-- HTML comment -->
-      <p>I'll tell you a secret ...</p>
+      <button onclick="foo(1,2)">I'll tell you a secret ...</button>
     </div>
+    <p style="font-size: 10px; color: #aaa">Open Firebug (F12) and see the colored source of this page in the Script Panel.</p>
   </body>
 </html>
