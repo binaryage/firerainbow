@@ -135,10 +135,8 @@ function getEscapeRegexp(direction, lists)
     return re;
 }
 
-function createSimpleEscape(name, direction)
-{
-    return function(value)
-    {
+function createSimpleEscape(name, direction) {
+    return function(value) {
         var list = entityConversionLists[direction][name];
         return String(value).replace(
                 getEscapeRegexp(direction, {
@@ -150,7 +148,7 @@ function createSimpleEscape(name, direction)
                     return list[ch];
                 }
                );
-    }
+    };
 }
 
 var escapeForSourceLine = createSimpleEscape('text', 'normal');
@@ -171,11 +169,12 @@ function run(lines) {
         lineNo++;
     }
     // determine what parser to use
-    var parser = JSParser;
+    var parserClass = JSParser;
     // use HTML mixed parser if you encounter these substrings on first line
-    if (firstLine.indexOf('<!DOCTYPE')!=-1 || firstLine.indexOf("<html")!=-1 || 
-        firstLine.indexOf("<body")!=-1 || firstLine.indexOf("<head")!=-1) parser = HTMLMixedParser;
-    var parser = parser.make(stringStream({
+    if (firstLine.indexOf('<!DOCTYPE')!=-1 || firstLine.indexOf("<html")!=-1 || firstLine.indexOf("<body")!=-1 || firstLine.indexOf("<head")!=-1) {
+        parserClass = HTMLMixedParser;
+    }
+    var parser = parserClass.make(stringStream({
         next: function() {
             if (nextLine===null) throw StopIteration;
             var result = nextLine;
@@ -184,11 +183,9 @@ function run(lines) {
         }
     }));
 
+    var styleLibrary = {};
 
     var lineToBeColorized = 0;
-    var styleLibrary = {};
-    var colorizedLines = [];
-
     while (lineToBeColorized < lines.length) {
         // extract line code from node
         // note: \n is important to simulate multi line text in stream (for example multi-line comments depend on this)
@@ -200,15 +197,13 @@ function run(lines) {
             function(token) {
                 // colorize token
                 var val = token.value;
-                parsedLine.push('<span class="' + token.style + '">' + escapeForSourceLine(val) + '</span>');
+                parsedLine.push([token.style, val]);
                 styleLibrary[token.style] = true;
             }
         );
 
         // apply coloring to the line
-        var newLine = parsedLine.join('').replace(/\n/g, '');
-        colorizedLines.push(newLine);
-        postMessage({msg: 'progress', lineNo: lineToBeColorized++, line: newLine});
+        postMessage({msg: 'progress', line: lineToBeColorized, stream: parsedLine});
 
         // move for next line
         lineToBeColorized++;
@@ -221,4 +216,4 @@ onmessage = function(e) {
         case 'run': run(e.data.lines); break;
         default: throw "Unkwnown command for worker!";
     }
-}
+};

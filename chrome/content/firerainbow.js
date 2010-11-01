@@ -43,6 +43,29 @@ FBL.ns(function() {
                         FBTrace.sysout.apply(this, arguments);
                     }
                 };
+                
+                var buildToken = function(style, val) {
+                    return '<span class="' + style + '">' + escapeForSourceLine(val) + '</span>';
+                };
+                
+                var processTokenStream = function(stream) {
+                    // stream is array of pairs
+                    // apply coloring to the line
+                    var pieces = [];
+                    for(var i=0; i<stream.length; i++) {
+                        var token = stream[i];
+                        pieces.push(buildToken(token[0], token[1]));
+                    }
+                    
+                    var output = pieces.join('').replace(/\n/g, '');
+                    // if the pref says so, replace tabs by corresponding number of spaces.
+                    if (Firebug.replaceTabs > 0) {
+                        var space = new Array(Firebug.replaceTabs + 1).join(" ");
+                        output = output.replace(/\t/g, space);
+                    }
+                    
+                    return output;
+                };
 
                 ////////////////////////////////////////////////////////////////////////
                 // Firebug.FireRainbowExtension
@@ -188,7 +211,7 @@ FBL.ns(function() {
                     /////////////////////////////////////////////////////////////////////////////////////////
                     startDaemon: function(sourceBox) {
                         dbg("Rainbow: startDaemon", sourceBox);
-                        if (Worker) {
+                        if (typeof Worker !== "undefined") {
                             this.startDaemonAsWorkerThread(sourceBox);
                         } else {
                             this.startDaemonOnUIThread(sourceBox);
@@ -197,7 +220,7 @@ FBL.ns(function() {
                     /////////////////////////////////////////////////////////////////////////////////////////
                     stopDaemon: function() {
                         dbg("Rainbow: stopDaemon");
-                        if (Worker) {
+                        if (typeof Worker !== "undefined") {
                             this.stopDaemonAsWorkerThread();
                         } else {
                             this.stopDaemonOnUIThread();
@@ -222,18 +245,39 @@ FBL.ns(function() {
                         if (sourceBox.lineToBeColorized==undefined) sourceBox.lineToBeColorized = 0;
                         if (!sourceBox.colorizedLines) sourceBox.colorizedLines = [];
                         
+                        var refresh = function() {
+                            // do review to be sure actual view gets finaly colorized
+                            if (that.actualScriptPanel) {
+                                sourceBox.preventRainbowRecursion = true;
+                                dbg("Rainbow: reView!", sourceBox);
+                                that.actualScriptPanel.lastScrollTop = that.actualScriptPanel.lastScrollTop || 0;
+                                that.actualScriptPanel.lastScrollTop -= 1; // fight reView's "reView no change to scrollTop" optimization
+                                sourceBox.firstViewableLine = -1; // overcome another layer of reView optimization added in Firebug 1.4
+                                that.actualScriptPanel.reView(sourceBox, true);
+                            }
+                        };
+                        
                         var that = this;
-                        this.parserWorker = new Worker('chrome://firerainbow/content/worker.js');
-                        this.parserWorker.onmessage = function(e) {
+                        var worker = new Worker('chrome://firerainbow/content/worker.js');
+                        worker.onmessage = function(e) {
                             dbg("Rainbow: got worker message "+e.data.msg, e.data);
                             switch (e.data.msg) {
+                                case 'progress':
+                                    sourceBox.colorizedLines[e.data.line] = processTokenStream(e.data.stream);
+                                    if (e.data.line==sourceBox.lastViewableLine) {
+                                        // just crossed actual view, force refresh!
+                                        refresh();
+                                    }
+                                    break;
                                 case 'done': 
                                     that.parserWorker = undefined;
+                                    sourceBox.colorized = true;
                                     that.styleLibrary = e.data.styleLibrary;
+                                    refresh();
                                     break;
                             }
                         };
-                        this.parserWorker.onerror = function(e) {
+                        worker.onerror = function(e) {
                             dbg("Rainbow: worker error", e);
                             // stop daemon in this exceptional case
                             that.stopDaemon();
@@ -241,17 +285,17 @@ FBL.ns(function() {
                             sourceBox.colorizationFailed = true;
                             return;
                         };
-                        this.parserWorker.postMessage({
+                        worker.postMessage({
                             command: 'run',
-                            lines: sourceBox.lines // ['hello world']
+                            lines: sourceBox.lines
                         });
+                        this.parserWorker = worker;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     startDaemonOnUIThread: function(sourceBox) {
                         // daemon is here to perform colorization in background
                         // the goal is not to block Firebug functionality and don't hog CPU for too long
                         // daemonInterval and tokensPerCall properties define how intensive this background process should be
-                        // TODO: rewrite this using background workers
                         if (this.currentSourceBox===sourceBox) return;
 
                         this.stopDaemon(); // never let run two or more daemons concruently!
@@ -262,6 +306,7 @@ FBL.ns(function() {
                         if (sourceBox.colorized) return; // already colorized
 
                         dbg("Rainbow: startDaemonOnUIThread", sourceBox);
+                        var that = this;
                         
                         this.currentSourceBox = sourceBox;
                         if (sourceBox.lineToBeColorized==undefined) sourceBox.lineToBeColorized = 0;
@@ -318,7 +363,6 @@ FBL.ns(function() {
                         };
 
                         // run daemon
-                        var that = this;
                         this.daemonTimer = setInterval(
                             function() {
                                 try {
@@ -343,7 +387,7 @@ FBL.ns(function() {
                                             function(token) {
                                                 // colorize token
                                                 var val = token.value;
-                                                sourceBox.parsedLine.push('<span class="' + token.style + '">' + escapeForSourceLine(val) + '</span>');
+                                                sourceBox.parsedLine.push([token.style, val]);
                                                 that.styleLibrary[token.style] = true;
                                                 if (--tokenQuota==0) {
                                                     throw StopIteration;
@@ -355,14 +399,7 @@ FBL.ns(function() {
                                             return;
                                         }
                                     
-                                        // apply coloring to the line
-                                        var newLine = sourceBox.parsedLine.join('').replace(/\n/g, '');
-                                        // if the pref says so, replace tabs by corresponding number of spaces.
-                                        if (Firebug.replaceTabs > 0) {
-                                            var space = new Array(Firebug.replaceTabs + 1).join(" ");
-                                            newLine = newLine.replace(/\t/g, space);
-                                        }
-                                        sourceBox.colorizedLines.push(newLine);
+                                        sourceBox.colorizedLines.push(processTokenStream(sourceBox.parsedLine));
 
                                         if (startLine && startLine<=sourceBox.lastViewableLine && sourceBox.lineToBeColorized>=sourceBox.lastViewableLine) {
                                             // just crossed actual view, force refresh!
