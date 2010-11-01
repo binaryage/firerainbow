@@ -408,7 +408,7 @@ FBL.ns(function() {
                                     
                                         sourceBox.colorizedLines.push(processTokenStream(sourceBox.parsedLine));
 
-                                        if (startLine && startLine<=sourceBox.lastViewableLine && sourceBox.lineToBeColorized>=sourceBox.lastViewableLine) {
+                                        if (sourceBox.lineToBeColorized==sourceBox.lastViewableLine) {
                                             // just crossed actual view, force refresh!
                                             refresh();
                                             startLine = null;
