@@ -17,7 +17,7 @@ FBL.ns(function() {
             if (!cssPanelAvailable) {
                 var consoleService = Cc['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
                 consoleService.logStringMessage("FireRainbow requires Firebug 1.3+ (your have "+Firebug.getVersion()+").");
-                consoleService.logStringMessage('Please update your Firebug extension to latest version (http://getfirebug.com).');
+                consoleService.logStringMessage('Please update your Firebug extension to the latest version (http://getfirebug.com).');
             } else {
                 const nsIPrefBranch = Ci.nsIPrefBranch;
                 const nsIPrefBranch2 = Ci.nsIPrefBranch2;
@@ -211,7 +211,8 @@ FBL.ns(function() {
                     /////////////////////////////////////////////////////////////////////////////////////////
                     startDaemon: function(sourceBox) {
                         dbg("Rainbow: startDaemon", sourceBox);
-                        if (typeof Worker !== "undefined") {
+                        var webWorkersEnabled = !this.getPref('disableWebWorkers', false);
+                        if (webWorkersEnabled && typeof Worker !== "undefined") {
                             this.startDaemonAsWorkerThread(sourceBox);
                         } else {
                             this.startDaemonOnUIThread(sourceBox);
@@ -220,10 +221,16 @@ FBL.ns(function() {
                     /////////////////////////////////////////////////////////////////////////////////////////
                     stopDaemon: function() {
                         dbg("Rainbow: stopDaemon");
-                        if (typeof Worker !== "undefined") {
-                            this.stopDaemonAsWorkerThread();
-                        } else {
-                            this.stopDaemonOnUIThread();
+                        if (this.parserWorker) {
+                            dbg("Rainbow: stopDaemonAsWorkerThread");
+                            this.parserWorker.terminate();
+                            this.parserWorker = undefined;
+                        }
+                        if (this.daemonTimer) {
+                            dbg("Rainbow: stopDaemonOnUIThread");
+                            clearInterval(this.daemonTimer);
+                            this.daemonTimer = undefined;
+                            this.currentSourceBox = undefined;
                         }
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
@@ -423,21 +430,6 @@ FBL.ns(function() {
                                 }
                             },
                         daemonInterval);
-                    },
-                    /////////////////////////////////////////////////////////////////////////////////////////
-                    stopDaemonAsWorkerThread: function() {
-                        if (!this.parserWorker) return;
-                        dbg("Rainbow: stopDaemonAsWorkerThread");
-                        this.parserWorker.terminate();
-                        this.parserWorker = undefined;
-                    },
-                    /////////////////////////////////////////////////////////////////////////////////////////
-                    stopDaemonOnUIThread: function() {
-                        if (!this.daemonTimer) return;
-                        dbg("Rainbow: stopDaemonOnUIThread");
-                        clearInterval(this.daemonTimer);
-                        this.daemonTimer = undefined;
-                        this.currentSourceBox = undefined;
                     },
                     /////////////////////////////////////////////////////////////////////////////////////////
                     pingDaemon: function(sourceBox) {
