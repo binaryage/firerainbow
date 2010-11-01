@@ -332,13 +332,13 @@ FBL.ns(function() {
                                 lineNo++;
                             }
                             // determine what parser to use
-                            var parser = JSParser;
+                            var parser = codemirror.JSParser;
                             // use HTML mixed parser if you encounter these substrings on first line
                             if (firstLine.indexOf('<!DOCTYPE')!=-1 || firstLine.indexOf("<html")!=-1 || 
-                                firstLine.indexOf("<body")!=-1 || firstLine.indexOf("<head")!=-1) parser = HTMLMixedParser;
-                            sourceBox.parser = parser.make(stringStream({
+                                firstLine.indexOf("<body")!=-1 || firstLine.indexOf("<head")!=-1) parser = codemirror.HTMLMixedParser;
+                            sourceBox.parser = parser.make(codemirror.stringStream({
                                 next: function() {
-                                    if (nextLine===null) throw StopIteration;
+                                    if (nextLine===null) throw codemirror.StopIteration;
                                     var result = nextLine;
                                     nextLine = null;
                                     return result;
@@ -390,7 +390,7 @@ FBL.ns(function() {
                                             sourceBox.hasLine = true;
                                         }
                                         
-                                        forEach(sourceBox.parser,
+                                        codemirror.forEach(sourceBox.parser,
                                             function(token) {
                                                 // colorize token
                                                 var val = token.value;

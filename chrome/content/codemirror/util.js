@@ -1,4 +1,3 @@
-var topScope = this;
 /* A few useful utility functions. */
 
 // Capture a method on an object.
@@ -96,7 +95,7 @@ function normalizeEvent(event) {
 // Portably register event handlers.
 function addEventHandler(node, type, handler, removeFunc) {
   function wrapHandler(event) {
-    handler(normalizeEvent(event || topScope.event));
+    handler(normalizeEvent(event || window.event));
   }
   if (typeof node.addEventListener == "function") {
     node.addEventListener(type, wrapHandler, false);

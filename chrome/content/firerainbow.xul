@@ -4,14 +4,6 @@
 <?xml-stylesheet href="chrome://firebug/skin/window.css"?>
 <?xml-stylesheet href="chrome://firerainbow/skin/rainbow.css"?>
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <script>Editor = {};var indentUnit = 2;</script>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/util.js"/>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/tokenize.js"/>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/tokenizejavascript.js"/>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsejavascript.js"/>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsecss.js"/>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsexml.js"/>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/parsehtmlmixed.js"/>
-    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror/stringstream.js"/>
+    <script type="application/x-javascript" src="chrome://firerainbow/content/codemirror.js"/>
     <script type="application/x-javascript" src="chrome://firerainbow/content/firerainbow.js"/>
 </overlay>

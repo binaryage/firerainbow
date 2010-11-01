@@ -1,13 +1,5 @@
 // import codemirror
-Editor = {};var indentUnit = 2;
-importScripts("chrome://firerainbow/content/codemirror/util.js");
-importScripts("chrome://firerainbow/content/codemirror/tokenize.js");
-importScripts("chrome://firerainbow/content/codemirror/tokenizejavascript.js");
-importScripts("chrome://firerainbow/content/codemirror/parsejavascript.js");
-importScripts("chrome://firerainbow/content/codemirror/parsecss.js");
-importScripts("chrome://firerainbow/content/codemirror/parsexml.js");
-importScripts("chrome://firerainbow/content/codemirror/parsehtmlmixed.js");
-importScripts("chrome://firerainbow/content/codemirror/stringstream.js");
+importScripts("chrome://firerainbow/content/codemirror.js");
 
 function run(lines) {
     var nextLine = null;
@@ -21,14 +13,14 @@ function run(lines) {
         lineNo++;
     }
     // determine what parser to use
-    var parserClass = JSParser;
+    var parserClass = codemirror.JSParser;
     // use HTML mixed parser if you encounter these substrings on first line
     if (firstLine.indexOf('<!DOCTYPE')!=-1 || firstLine.indexOf("<html")!=-1 || firstLine.indexOf("<body")!=-1 || firstLine.indexOf("<head")!=-1) {
-        parserClass = HTMLMixedParser;
+        parserClass = codemirror.HTMLMixedParser;
     }
-    var parser = parserClass.make(stringStream({
+    var parser = parserClass.make(codemirror.stringStream({
         next: function() {
-            if (nextLine===null) throw StopIteration;
+            if (nextLine===null) throw codemirror.StopIteration;
             var result = nextLine;
             nextLine = null;
             return result;
@@ -45,7 +37,7 @@ function run(lines) {
 
         parsedLine = [];
 
-        forEach(parser,
+        codemirror.forEach(parser,
             function(token) {
                 // colorize token
                 var val = token.value;

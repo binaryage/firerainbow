@@ -1,5 +1,3 @@
-var topScope = this;
-
 var HTMLMixedParser = Editor.Parser = (function() {
 
   // tags that trigger seperate parsers
@@ -12,7 +10,7 @@ var HTMLMixedParser = Editor.Parser = (function() {
     var parsers = ['XMLParser'];
     for (var p in triggers) parsers.push(triggers[p]);
     for (var i in parsers) {
-      if (!topScope[parsers[i]]) throw new Error(parsers[i] + " parser must be loaded for HTML mixed mode to work.");
+      if (!window[parsers[i]]) throw new Error(parsers[i] + " parser must be loaded for HTML mixed mode to work.");
     }
     XMLParser.configure({useHTMLKludges: true});
   }
@@ -30,7 +28,7 @@ var HTMLMixedParser = Editor.Parser = (function() {
         inTag = token.content.toLowerCase();
       else if (token.content == ">") {
         if (triggers[inTag]) {
-          var parser = topScope[triggers[inTag]];
+          var parser = window[triggers[inTag]];
           iter.next = local(parser, "</" + inTag);
         }
         inTag = false;
