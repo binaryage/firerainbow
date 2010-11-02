@@ -5,12 +5,13 @@ product_title: FireRainbow
 product_subtitle: javascript syntax highlighting for Firebug
 download: https://addons.mozilla.org/en-US/firefox/addon/9603
 repo: http://github.com/darwin/firerainbow
-downloadtitle: Install 1.1
+downloadtitle: Install 1.2
+buttons: <a href="/test" class="button button-300 product-button-thumbup"><div><div><div class="trial-note">after restart</div>Visit Test Page<div class="product-specs">to check that your  installation works well</div></div></div></a>
 meta_title: FireRainbow enables javascript syntax highlighting for Firebug
 meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
 meta_description: FireRainbow enables javascript syntax highlighting for Firebug
 meta_image: http://www.binaryage.com/shared/img/icons/firerainbow-256.png
-leftshift: 60px
+leftshift: 50px
 likeshift: 22px
 facebook: 1
 retweet: 1
@@ -33,7 +34,6 @@ shots: [{
 }]
 ---
 
-
 ## Features
 
 * **Mixed syntax highlighting** powered by [CodeMirror][codemirror]
@@ -44,10 +44,14 @@ shots: [{
   * Color theme can be modified using Firebug's CSS panel
   * Highlighting is applied incrementally (good performance)
   * Color themes available [on GitHub](http://github.com/darwin/firerainbow/tree/master/themes)
+  * Uses WebWorkers to perform parsing in non-blocking fashion
 
 ### Compatibility
 
-* **Version 1.1** is tested to work with official **Firebug 1.5** (Firefox 3.5 and 3.6) <- it is not compatible with **Firebug 1.4** anymore
+Firefox and Firebug are moving targets. Please make sure you use compatible versions. I'm unable to test all possible combinations.
+
+* **Version 1.2** is tested to work with official **Firebug 1.5** and **Firebug 1.6** (Firefox 3.5 - 4.0)
+* **Version 1.1** is tested to work with official **Firebug 1.5** (Firefox 3.5 and 3.6) <- it is not compatible with **Firebug 1.4** anymore!
 * **Version 1.0** is tested to work with official **Firebug 1.4** (Firefox 3.0 and 3.5)
 * **Version 0.9** is tested to work with official **Firebug 1.3**
 * **Version 0.8** is tested to work with alpha **Firebug 1.3**
@@ -55,23 +59,27 @@ shots: [{
 
 ## Installation
 
-You need [Firebug 1.5][firebug]+ for latest version to work. The preferred way is to **[install this Firefox extension][rainbow]** via addons.mozilla.com.
+### **[Install this Firefox extension][rainbow]** via addons.mozilla.com.
 
-Note: If you are still stuck with Firebug 1.2, install [version 0.7][v07].
+You need [Firebug 1.5][firebug]+ for the latest version to work. 
 
-Note: If you are still stuck with Firebug 1.4, install [version 1.0][v10].
+### Troubles?
 
-Note: Some people have reported they are unable to download and install extension via addons.mozilla.com. In this case you may [try workaround][workaround].
+If you are still stuck with Firebug 1.4, install [version 1.0][v10].
 
-### Installation from sources
+If you are still stuck with Firebug 1.2, install [version 0.7][v07].
+
+Note: Some people have reported they are unable to download and install extension via addons.mozilla.com. In this case you may [try this workaround][workaround].
+
+### Install bleeding edge version from sources
 
     git clone git://github.com/darwin/firerainbow.git
     cd firerainbow
     rake
     
-<a href="images/compilation.png"><img style="border: 2px solid #888;-moz-border-radius:2px;-webkit-border-radius:2px;" src="images/compilation.png" width="300"></a>
+If all went right, you should be able to find your fresh XPI under `build/firerainbow-X.Y.xpi`. 
 
-If all went right, you should be able to find your fresh XPI under `build/firerainbow-X.Y.xpi`. You can install XPI file into Firefox by opening it via File -> Open File ...
+You can install XPI file into Firefox by opening it via File -> Open File ...
 
 ## Themes
 
@@ -89,6 +97,13 @@ Feel free to fork the project and contribute your very own theme.
 * **Marijn Haverbeke** - this extension uses his great [CodeMirror][codemirror] for javascript/html/css parsing.
 
 ### History
+
+* **v1.2** (02.11.2010)
+  * [[darwin][darwin]] compatibility with Firebug 1.6 and early Firebug 1.7 alpha
+  * [[darwin][darwin]] updated CodeMirror to v0.9
+  * [[darwin][darwin]] CodeMirror wrapped into its own namespace (should resolve conflicts with other extensions)
+  * [[darwin][darwin]] using WebWorkers to compute highlighting (better performance)
+  * [[darwin][darwin]] fixed bug when coloring was not triggered for file when scrolled to the top
 
 * **v1.1** (20.01.2010)
   * [[darwin][darwin]] fixed Firebug 1.5 compatibility and dropped Firebug 1.4 compatibility
