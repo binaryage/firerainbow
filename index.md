@@ -44,11 +44,11 @@ shots: [{
   * Color theme can be modified using Firebug's CSS panel
   * Highlighting is applied incrementally (good performance)
   * Color themes available [on GitHub](http://github.com/darwin/firerainbow/tree/master/themes)
-  * Uses WebWorkers to perform parsing in non-blocking fashion
+  * Uses WebWorkers to perform parsing in a non-blocking fashion
 
 ### Compatibility
 
-Firefox and Firebug are moving targets. Please make sure you use compatible versions. I'm unable to test all possible combinations.
+Both Firefox and Firebug are moving targets. Please make sure you use compatible versions. I'm unable to test all possible combinations.
 
 * **Version 1.2** is tested to work with official **Firebug 1.5** and **Firebug 1.6** (Firefox 3.5 - 4.0)
 * **Version 1.1** is tested to work with official **Firebug 1.5** (Firefox 3.5 and 3.6) <- it is not compatible with **Firebug 1.4** anymore!
@@ -69,17 +69,17 @@ If you are still stuck with Firebug 1.4, install [version 1.0][v10].
 
 If you are still stuck with Firebug 1.2, install [version 0.7][v07].
 
-Note: Some people have reported they are unable to download and install extension via addons.mozilla.com. In this case you may [try this workaround][workaround].
+Note: Some people have reported they are unable to download and install the extension via addons.mozilla.com. In this case you may [try this workaround][workaround].
 
-### Install bleeding edge version from sources
+### Install bleeding edge version from source
 
     git clone git://github.com/darwin/firerainbow.git
     cd firerainbow
     rake
     
-If all went right, you should be able to find your fresh XPI under `build/firerainbow-X.Y.xpi`. 
+If everything went ok, you should be able to find your fresh XPI under `build/firerainbow-X.Y.xpi`. 
 
-You can install XPI file into Firefox by opening it via File -> Open File ...
+You can install XPI file in Firefox by opening it via File -> Open File ...
 
 ## Themes
 
