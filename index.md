@@ -19,7 +19,7 @@ flattr: http://firerainbow.binaryage.com
 ogmeta: {
     site_name: "BinaryAge website",
     description: "FireRainbow enables javascript syntax highlighting for Firebug",
-    email: "antonin@binaryage.com",
+    email: "support@binaryage.com",
     type: "product",
     title: "FireRainbow",
     url: "http://firerainbow.binaryage.com",
