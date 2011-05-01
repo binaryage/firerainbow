@@ -65,11 +65,14 @@ function matcher(regexp){
   return function(value){return regexp.test(value);};
 }
 
-// Test whether a DOM node has a certain CSS class. Much faster than
-// the MochiKit equivalent, for some reason.
-function hasClass(element, className){
+// Test whether a DOM node has a certain CSS class.
+function hasClass(element, className) {
   var classes = element.className;
   return classes && new RegExp("(^| )" + className + "($| )").test(classes);
+}
+function removeClass(element, className) {
+  element.className = element.className.replace(new RegExp(" " + className + "\\b", "g"), "");
+  return element;
 }
 
 // Insert a DOM node after another node.
@@ -321,7 +324,7 @@ var tokenizeJavaScript = (function() {
     }
     function readRegexp() {
       nextUntilUnescaped(source, "/");
-      source.nextWhileMatches(/[gi]/);
+      source.nextWhileMatches(/[gimy]/); // 'y' is "sticky" option in Mozilla
       return {type: "regexp", style: "js-string"};
     }
     // Mutli-line comments are tricky. We want to return the newlines
@@ -735,7 +738,7 @@ this.JSParser = Editor.Parser = (function() {
     // in its argument list have to be added to this context.
     function functiondef(type, value){
       if (type == "variable"){register(value); cont(functiondef);}
-      else if (type == "(") cont(pushcontext, commasep(funarg, ")"), statement, popcontext);
+      else if (type == "(") cont(pushlex(")"), pushcontext, commasep(funarg, ")"), poplex, statement, popcontext);
     }
     function funarg(type, value){
       if (type == "variable"){register(value); cont();}
@@ -1395,7 +1398,7 @@ this.stringStream = function(source){
         else if (str.slice(0, left) == cased(current.slice(pos))) {
           accum += current; current = "";
           try {current = source.next();}
-          catch (e) {break;}
+          catch (e) {if (e != StopIteration) throw e; break;}
           pos = 0;
           str = str.slice(left);
         }
@@ -1411,6 +1414,20 @@ this.stringStream = function(source){
       }
 
       return found;
+    },
+    // Wont't match past end of line.
+    lookAheadRegex: function(regex, consume) {
+      if (regex.source.charAt(0) != "^")
+        throw new Error("Regexps passed to lookAheadRegex must start with ^");
+
+      // Fetch the rest of the line
+      while (current.indexOf("\n", pos) == -1) {
+        try {current += source.next();}
+        catch (e) {if (e != StopIteration) throw e; break;}
+      }
+      var matched = current.slice(pos).match(regex);
+      if (matched && consume) pos += matched[0].length;
+      return matched;
     },
 
     // Utils built on top of the above
