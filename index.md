@@ -5,7 +5,7 @@ product_title: FireRainbow
 product_subtitle: javascript syntax highlighting for Firebug
 download: https://addons.mozilla.org/en-US/firefox/addon/9603
 repo: http://github.com/darwin/firerainbow
-downloadtitle: Install 1.2
+downloadtitle: Install 1.3
 buttons: <a href="/test" class="button button-300 product-button-thumbup"><div><div><div class="trial-note">after restart</div>Visit Test Page<div class="product-specs">to check that your  installation works well</div></div></div></a>
 meta_title: FireRainbow enables javascript syntax highlighting for Firebug
 meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
@@ -48,6 +48,7 @@ shots: [{
 
 Both Firefox and Firebug are moving targets. Please make sure you use compatible versions. I'm unable to test all possible combinations.
 
+* **Version 1.3** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7** (Firefox 3.5 - 4.0)
 * **Version 1.2** is tested to work with official **Firebug 1.5** and **Firebug 1.6** (Firefox 3.5 - 4.0)
 * **Version 1.1** is tested to work with official **Firebug 1.5** (Firefox 3.5 and 3.6) <- it is not compatible with **Firebug 1.4** anymore!
 * **Version 1.0** is tested to work with official **Firebug 1.4** (Firefox 3.0 and 3.5)
@@ -95,6 +96,10 @@ Feel free to fork the project and contribute your very own theme.
 * **Marijn Haverbeke** - this extension uses his great [CodeMirror][codemirror] for javascript/html/css parsing.
 
 ### History
+
+* **v1.3** (30.04.2011)
+  * [[darwin][darwin]] marked as compatible with Firefox 4.0
+  * [[darwin][darwin]] updated CodeMirror to v1.0
 
 * **v1.2** (02.11.2010)
   * [[darwin][darwin]] compatibility with Firebug 1.6 and early Firebug 1.7 alpha
