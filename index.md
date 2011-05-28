@@ -1,6 +1,7 @@
 ---
-layout: product
+layout: product2
 title: FireRainbow enables javascript syntax highlighting for Firebug
+product: firerainbow
 product_title: FireRainbow
 product_subtitle: javascript syntax highlighting for Firebug
 download: https://addons.mozilla.org/en-US/firefox/addon/9603
