@@ -4,9 +4,10 @@ title: FireRainbow enables javascript syntax highlighting for Firebug
 product: firerainbow
 product_title: FireRainbow
 product_subtitle: javascript syntax highlighting for Firebug
-download: https://addons.mozilla.org/en-US/firefox/addon/9603
 repo: http://github.com/darwin/firerainbow
-downloadtitle: Install 1.3
+#download: https://addons.mozilla.org/en-US/firefox/addon/9603
+download: https://addons.mozilla.org/en-US/firefox/addon/firerainbow/versions
+downloadtitle: Install 1.4
 buttons: <a href="/test" class="button button-300 product-button-thumbup"><div><div><div class="trial-note">after restart</div>Visit Test Page<div class="product-specs">to check that your  installation works well</div></div></div></a>
 meta_title: FireRainbow enables javascript syntax highlighting for Firebug
 meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
@@ -49,6 +50,7 @@ shots: [{
 
 Both Firefox and Firebug are moving targets. Please make sure you use compatible versions. I'm unable to test all possible combinations.
 
+* **Version 1.4** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7**, also should be compatible with beta Firebug 1.8 (Firefox 3.5 - 5.0)
 * **Version 1.3** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7** (Firefox 3.5 - 4.0)
 * **Version 1.2** is tested to work with official **Firebug 1.5** and **Firebug 1.6** (Firefox 3.5 - 4.0)
 * **Version 1.1** is tested to work with official **Firebug 1.5** (Firefox 3.5 and 3.6) <- it is not compatible with **Firebug 1.4** anymore!
@@ -71,7 +73,7 @@ If you are still stuck with Firebug 1.2, install [version 0.7][v07].
 
 Note: Some people have reported they are unable to download and install the extension via addons.mozilla.com. In this case you may [try this workaround][workaround].
 
-### Install bleeding edge version from source
+### Install bleeding edge version from sources
 
     git clone git://github.com/darwin/firerainbow.git
     cd firerainbow
@@ -98,6 +100,10 @@ Feel free to fork the project and contribute your very own theme.
 
 ### History
 
+* **v1.4** (26.06.2011)
+  * [[darwin][darwin]] marked as compatible with Firefox 5.*
+  * [[darwin][darwin]] fixed compatibility with Firebug 1.8
+  
 * **v1.3** (30.04.2011)
   * [[darwin][darwin]] marked as compatible with Firefox 4.0
   * [[darwin][darwin]] updated CodeMirror to v1.0
