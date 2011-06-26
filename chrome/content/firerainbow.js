@@ -677,7 +677,11 @@ FBL.ns(function() {
                 });
 
                 Firebug.registerModule(Firebug.FireRainbowModule);
-                Firebug.registerExtension(Firebug.FireRainbowExtension);
+                if (Firebug.registerUIListener) { // Firebug 1.8+
+                    Firebug.registerUIListener(Firebug.FireRainbowExtension);
+                } else { // prior Firebug 1.8
+                    Firebug.registerExtension(Firebug.FireRainbowExtension);
+                }
                 Firebug.registerPanel(Firebug.FireRainbowSyntaxColoringEditorPanel);
             }
         }
