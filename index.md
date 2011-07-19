@@ -7,7 +7,8 @@ product_subtitle: javascript syntax highlighting for Firebug
 repo: http://github.com/darwin/firerainbow
 #download: https://addons.mozilla.org/en-US/firefox/addon/9603
 download: https://addons.mozilla.org/en-US/firefox/addon/firerainbow/versions
-downloadtitle: Install 1.4
+downloadtitle: Install v1.4
+downloadsubtitle: and get more colorful life
 buttons: <a href="/test" class="button button-300 product-button-thumbup"><div><div><div class="trial-note">after restart</div>Visit Test Page<div class="product-specs">to check that your  installation works well</div></div></div></a>
 meta_title: FireRainbow enables javascript syntax highlighting for Firebug
 meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
