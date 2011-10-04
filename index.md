@@ -14,7 +14,7 @@ meta_title: FireRainbow enables javascript syntax highlighting for Firebug
 meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
 meta_description: FireRainbow enables javascript syntax highlighting for Firebug
 meta_image: http://www.binaryage.com/shared/img/icons/firerainbow-256.png
-webexpo: 1
+webexpo: 0
 facebook: 1
 retweet: 1
 buzz: 1
