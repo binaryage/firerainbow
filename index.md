@@ -7,7 +7,7 @@ product_subtitle: javascript syntax highlighting for Firebug
 repo: http://github.com/darwin/firerainbow
 #download: https://addons.mozilla.org/en-US/firefox/addon/9603
 download: https://addons.mozilla.org/en-US/firefox/addon/firerainbow/versions
-downloadtitle: Install v1.4
+downloadtitle: Install v1.5
 downloadsubtitle: and get more colorful life
 buttons: <a href="/test" class="button button-300 product-button-thumbup"><div><div><div class="trial-note">after restart</div>Visit Test Page<div class="product-specs">to check that your  installation works well</div></div></div></a>
 meta_title: FireRainbow enables javascript syntax highlighting for Firebug
@@ -51,6 +51,7 @@ shots: [{
 
 Both Firefox and Firebug are moving targets. Please make sure you use compatible versions. I'm unable to test all possible combinations.
 
+* **Version 1.5** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7**, **Firebug 1.8** and **Firebug 1.9** (Firefox 3.5 - 11.0)
 * **Version 1.4** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7**, also should be compatible with beta Firebug 1.8 (Firefox 3.5 - 5.0)
 * **Version 1.3** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7** (Firefox 3.5 - 4.0)
 * **Version 1.2** is tested to work with official **Firebug 1.5** and **Firebug 1.6** (Firefox 3.5 - 4.0)
@@ -100,6 +101,10 @@ Feel free to fork the project and contribute your very own theme.
 * **Marijn Haverbeke** - this extension uses his great [CodeMirror][codemirror] for javascript/html/css parsing.
 
 ### History
+
+* **v1.5** (07.01.2012)
+  * [[darwin][darwin]] fixed compatibility with Firebug 1.9
+  * [[darwin][darwin]] by default do not override font settings from Firebug
 
 * **v1.4** (26.06.2011)
   * [[darwin][darwin]] marked as compatible with Firefox 5.*
