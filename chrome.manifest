@@ -1,5 +1,5 @@
 content firerainbow chrome/content/
 skin firerainbow classic/1.0 chrome/skin/
-locale firerainbow en-US chrome/locale/
+locale firerainbow en-US chrome/locale/en-US/
 
-overlay chrome://firebug/content/browserOverlay.xul chrome://firerainbow/content/firerainbow.xul
+overlay chrome://firebug/content/firebugOverlay.xul chrome://firerainbow/content/firerainbow.xul
