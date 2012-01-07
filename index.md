@@ -103,53 +103,53 @@ Feel free to fork the project and contribute your very own theme.
 ### History
 
 * **v1.5** (07.01.2012)
-  * [[darwin][darwin]] fixed compatibility with Firebug 1.9
-  * [[darwin][darwin]] by default do not override font settings from Firebug
+  * fixed compatibility with Firebug 1.9
+  * by default do not override font settings from Firebug
 
 * **v1.4** (26.06.2011)
-  * [[darwin][darwin]] marked as compatible with Firefox 5.*
-  * [[darwin][darwin]] fixed compatibility with Firebug 1.8
+  * marked as compatible with Firefox 5.*
+  * fixed compatibility with Firebug 1.8
   
 * **v1.3** (30.04.2011)
-  * [[darwin][darwin]] marked as compatible with Firefox 4.0
-  * [[darwin][darwin]] updated CodeMirror to v1.0
+  * marked as compatible with Firefox 4.0
+  * updated CodeMirror to v1.0
 
 * **v1.2** (02.11.2010)
-  * [[darwin][darwin]] compatibility with Firebug 1.6 and early Firebug 1.7 alpha
-  * [[darwin][darwin]] updated CodeMirror to v0.9
-  * [[darwin][darwin]] CodeMirror wrapped into its own namespace (should resolve conflicts with other extensions)
-  * [[darwin][darwin]] using WebWorkers to compute highlighting (better performance)
-  * [[darwin][darwin]] fixed bug when coloring was not triggered for file when scrolled to the top
+  * compatibility with Firebug 1.6 and early Firebug 1.7 alpha
+  * updated CodeMirror to v0.9
+  * CodeMirror wrapped into its own namespace (should resolve conflicts with other extensions)
+  * using WebWorkers to compute highlighting (better performance)
+  * fixed bug when coloring was not triggered for file when scrolled to the top
 
 * **v1.1** (20.01.2010)
-  * [[darwin][darwin]] fixed Firebug 1.5 compatibility and dropped Firebug 1.4 compatibility
-  * [[darwin][darwin]] marked as compatible with Firebug 1.6
+  * fixed Firebug 1.5 compatibility and dropped Firebug 1.4 compatibility
+  * marked as compatible with Firebug 1.6
 
 * **v1.0** (24.05.2009)
-  * [[darwin][darwin]] robust colorization of compressed scripts with long lines (previously parser halted) 
-  * [[darwin][darwin]] updated parser to CodeMirror 0.61
-  * [[darwin][darwin]] new home for themes in github project
-  * [[darwin][darwin]] compatibility with Firebug 1.4
+  * robust colorization of compressed scripts with long lines (previously parser halted) 
+  * updated parser to CodeMirror 0.61
+  * new home for themes in github project
+  * compatibility with Firebug 1.4
 
 * **v0.9** (29.01.2009)
-  * [[darwin][darwin]] updated parser to CodeMirror 0.60
-  * [[darwin][darwin]] fixed glitch when script didn't get colorized on first display in Firebug 1.4
-  * [[darwin][darwin]] tested to work with official Firebug 1.3 and Firefox 3.0.5 (worked also with alpha Firebug 1.4 and nightly Firefox 3.1)
+  * updated parser to CodeMirror 0.60
+  * fixed glitch when script didn't get colorized on first display in Firebug 1.4
+  * tested to work with official Firebug 1.3 and Firefox 3.0.5 (worked also with alpha Firebug 1.4 and nightly Firefox 3.1)
 
 * **v0.8** (15.11.2008)
-  * [[darwin][darwin]] reimplemented for changes in Firebug 1.3 (not compatible with Firebug 1.2 anymore)
-  * [[darwin][darwin]] added "Reset to default Color Preset" feature
-  * [[darwin][darwin]] changed extension guid, to distinguish from 0.7
+  * reimplemented for changes in Firebug 1.3 (not compatible with Firebug 1.2 anymore)
+  * added "Reset to default Color Preset" feature
+  * changed extension guid, to distinguish from 0.7
 
 * **v0.7** (27.08.2008)
-  * [[darwin][darwin]] added mixed HTML/CSS/JS coloring
-  * [[darwin][darwin]] added "Randomize Color Preset" feature
-  * [[darwin][darwin]] when installed with old firebug, error message is written into Firefox's error console
-  * [[darwin][darwin]] fixed bug preventing proper coloring in some rare cases
+  * added mixed HTML/CSS/JS coloring
+  * added "Randomize Color Preset" feature
+  * when installed with old firebug, error message is written into Firefox's error console
+  * fixed bug preventing proper coloring in some rare cases
 
 * **v0.6** (14.06.2008)
-  * [[darwin][darwin]] public beta release
-  * [[darwin][darwin]] hacked first version for Firebug 1.2
+  * public beta release
+  * hacked first version for Firebug 1.2
 
 
 [firebug]: https://addons.mozilla.org/en-US/firefox/addon/1843
