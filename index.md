@@ -51,15 +51,20 @@ shots: [{
 
 Both Firefox and Firebug are moving targets. Please make sure you use compatible versions. I'm unable to test all possible combinations.
 
-* **Version 1.5** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7**, **Firebug 1.8** and **Firebug 1.9** (Firefox 3.5 - 11.0)
-* **Version 1.4** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7**, also should be compatible with beta Firebug 1.8 (Firefox 3.5 - 5.0)
-* **Version 1.3** is tested to work with official **Firebug 1.5**, **Firebug 1.6** and **Firebug 1.7** (Firefox 3.5 - 4.0)
-* **Version 1.2** is tested to work with official **Firebug 1.5** and **Firebug 1.6** (Firefox 3.5 - 4.0)
-* **Version 1.1** is tested to work with official **Firebug 1.5** (Firefox 3.5 and 3.6) <- it is not compatible with **Firebug 1.4** anymore!
-* **Version 1.0** is tested to work with official **Firebug 1.4** (Firefox 3.0 and 3.5)
-* **Version 0.9** is tested to work with official **Firebug 1.3**
-* **Version 0.8** is tested to work with alpha **Firebug 1.3**
-* **Version 0.7** is tested to work with official **Firebug 1.2**
+<ul style="margin-bottom: 0px !important">
+<li><b>Version 1.5</b> is tested to work with official <b>Firebug 1.5 - 1.9</b> (Firefox 3.5 - 11.0)
+</ul>
+<a style="margin-top: 0px !important" href="javascript:$('.older-compatibility').toggle(); $(this).hide()">show compatibility of older versions &darr;</a>
+<ul class="older-compatibility" style="display:none">
+<li><b>Version 1.4</b> is tested to work with official <b>Firebug 1.5</b>, <b>Firebug 1.6</b> and <b>Firebug 1.7</b>, also should be compatible with beta Firebug 1.8 (Firefox 3.5 - 5.0)</li>
+<li><b>Version 1.3</b> is tested to work with official <b>Firebug 1.5</b>, <b>Firebug 1.6</b> and <b>Firebug 1.7</b> (Firefox 3.5 - 4.0)</li>
+<li><b>Version 1.2</b> is tested to work with official <b>Firebug 1.5</b> and <b>Firebug 1.6</b> (Firefox 3.5 - 4.0)</li>
+<li><b>Version 1.1</b> is tested to work with official <b>Firebug 1.5</b> (Firefox 3.5 and 3.6) <- it is not compatible with <b>Firebug 1.4</b> anymore!</li>
+<li><b>Version 1.0</b> is tested to work with official <b>Firebug 1.4</b> (Firefox 3.0 and 3.5)</li>
+<li><b>Version 0.9</b> is tested to work with official <b>Firebug 1.3</b></li>
+<li><b>Version 0.8</b> is tested to work with alpha <b>Firebug 1.3</b></li>
+<li><b>Version 0.7</b> is tested to work with official <b>Firebug 1.2</b></li>
+</ul>
 
 ## Installation
 
