@@ -5,7 +5,7 @@ product: firerainbow
 product_title: FireRainbow
 product_subtitle: javascript syntax highlighting for Firebug
 repo: http://github.com/darwin/firerainbow
-download: https://addons.mozilla.org/firefox/addon/firequery
+download: https://addons.mozilla.org/firefox/addon/firerainbow
 #download: https://addons.mozilla.org/en-US/firefox/addon/firerainbow/versions
 downloadtitle: Install v1.5
 downloadsubtitle: and get more colorful life
