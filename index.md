@@ -4,7 +4,7 @@ title: FireRainbow enables javascript syntax highlighting for Firebug
 product: firerainbow
 product_title: FireRainbow
 product_subtitle: javascript syntax highlighting for Firebug
-repo: http://github.com/darwin/firerainbow
+repo: http://github.com/binaryage/firerainbow
 download: https://addons.mozilla.org/firefox/addon/firerainbow
 #download: https://addons.mozilla.org/en-US/firefox/addon/firerainbow/versions
 downloadtitle: Install v1.5
