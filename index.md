@@ -44,7 +44,7 @@ shots: [{
 * Advanced features:
   * Color theme can be modified using Firebug's CSS panel
   * Highlighting is applied incrementally (good performance)
-  * Color themes available [on GitHub](http://github.com/darwin/firerainbow/tree/master/themes)
+  * Color themes available [on GitHub](http://github.com/binaryage/firerainbow/tree/master/themes)
   * Uses WebWorkers to perform parsing in a non-blocking fashion
 
 ### Compatibility
@@ -82,7 +82,7 @@ Note: Some people have reported they are unable to download and install the exte
 
 ### Install bleeding edge version from sources
 
-    git clone git://github.com/darwin/firerainbow.git
+    git clone git://github.com/binaryage/firerainbow.git
     cd firerainbow
     rake
     
@@ -92,10 +92,10 @@ You can install XPI file in Firefox by opening it via File -> Open File ...
 
 ## Themes
 
-Themes are available at **[http://github.com/darwin/firerainbow/tree/master/themes](http://github.com/darwin/firerainbow/tree/master/themes)**
+Themes are available at **[http://github.com/binaryage/firerainbow/tree/master/themes](http://github.com/binaryage/firerainbow/tree/master/themes)**
 
 <br>
-<a href="http://github.com/darwin/firerainbow/tree/master/themes"><img style="border: 2px solid #888;-moz-border-radius:2px;-webkit-border-radius:2px;" src="images/themes.png" width="500"></a>
+<a href="http://github.com/binaryage/firerainbow/tree/master/themes"><img style="border: 2px solid #888;-moz-border-radius:2px;-webkit-border-radius:2px;" src="images/themes.png" width="500"></a>
 
 Feel free to fork the project and contribute your very own theme.
 
