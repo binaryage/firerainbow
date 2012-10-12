@@ -13,7 +13,7 @@ buttons: <a href="/test" class="button button-300 product-button-thumbup"><div><
 meta_title: FireRainbow enables javascript syntax highlighting for Firebug
 meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
 meta_description: FireRainbow enables javascript syntax highlighting for Firebug
-meta_image: http://www.binaryage.com/shared/img/icons/firerainbow-256.png
+meta_image: http://www.binaryage.com/base/img/icons/firerainbow-256.png
 facebook: 1
 retweet: 1
 buzz: 1
@@ -26,12 +26,12 @@ ogmeta: {
     type: "product",
     title: "FireRainbow",
     url: "http://firerainbow.binaryage.com",
-    image: "http://www.binaryage.com/shared/img/icons/firerainbow-256.png"
+    image: "http://www.binaryage.com/base/img/icons/firerainbow-256.png"
 }
 shots: [{
     title: "FireRainbow in action! Please note colors tab on the right side. You may tweak colors via CSS!",
-    thumb: "/shared/img/firerainbow-mainshot.png",
-    full: "/shared/img/firerainbow-mainshot-full.png"
+    thumb: "/base/img/firerainbow-mainshot.png",
+    full: "/base/img/firerainbow-mainshot-full.png"
 }]
 ---
 
