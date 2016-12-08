@@ -1,24 +1,25 @@
 ---
-layout: product
+layout: product-home
 title: FireRainbow enables javascript syntax highlighting for Firebug
 product: firerainbow
 product_title: FireRainbow
 product_subtitle: javascript syntax highlighting for Firebug
+product_icon: /shared/img/icons/firerainbow-256.png
 repo: http://github.com/binaryage/firerainbow
 download: https://addons.mozilla.org/firefox/addon/firerainbow
-#download: https://addons.mozilla.org/en-US/firefox/addon/firerainbow/versions
 downloadtitle: Install v1.5
 downloadsubtitle: and get more colorful life
 buttons: <a href="/test" class="button button-300 product-button-thumbup"><div><div><div class="trial-note">after restart</div>Visit Test Page<div class="product-specs">to check that your  installation works well</div></div></div></a>
 meta_title: FireRainbow enables javascript syntax highlighting for Firebug
 meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
 meta_description: FireRainbow enables javascript syntax highlighting for Firebug
-meta_image: http://www.binaryage.com/shared/img/icons/firerainbow-256.png
+meta_image: /shared/img/icons/firerainbow-256.png
 facebook: 1
 retweet: 1
 buzz: 1
 fbsdk: 1
 flattr: http://firerainbow.binaryage.com
+build_tabs: 1
 ogmeta: {
     site_name: "BinaryAge website",
     description: "FireRainbow enables javascript syntax highlighting for Firebug",
@@ -28,14 +29,14 @@ ogmeta: {
     url: "http://firerainbow.binaryage.com",
     image: "http://www.binaryage.com/shared/img/icons/firerainbow-256.png"
 }
-shots: [{
-    title: "FireRainbow in action! Please note colors tab on the right side. You may tweak colors via CSS!",
-    thumb: "/shared/img/firerainbow-mainshot.png",
-    full: "/shared/img/firerainbow-mainshot-full.png"
-}]
 ---
 
+{% contentfor product-buttons %}
+{% endcontentfor %}
+
 ## Features
+
+<a href="/shared/img/firerainbow-mainshot-full.png"><img src="/shared/img/firerainbow-mainshot-full.png" widht="800"></a>
 
 * **Mixed syntax highlighting** powered by [CodeMirror][codemirror]
   * Javascript
