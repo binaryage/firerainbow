@@ -7,18 +7,12 @@ product_subtitle: javascript syntax highlighting for Firebug
 product_icon: /shared/img/icons/firerainbow-256.png
 repo: http://github.com/binaryage/firerainbow
 download: https://addons.mozilla.org/firefox/addon/firerainbow
-downloadtitle: Install v1.5
-downloadsubtitle: and get more colorful life
+downloadtitle: Install via Mozilla Addons
 buttons: <a href="/test" class="button button-300 product-button-thumbup"><div><div><div class="trial-note">after restart</div>Visit Test Page<div class="product-specs">to check that your  installation works well</div></div></div></a>
 meta_title: FireRainbow enables javascript syntax highlighting for Firebug
 meta_keywords: firebug,firefox,addon,firerainbow,syntax,highlighting,javascript,binaryage,productivity,software,web,development
 meta_description: FireRainbow enables javascript syntax highlighting for Firebug
 meta_image: /shared/img/icons/firerainbow-256.png
-facebook: 1
-retweet: 1
-buzz: 1
-fbsdk: 1
-flattr: http://firerainbow.binaryage.com
 build_tabs: 1
 ogmeta: {
     site_name: "BinaryAge website",
@@ -32,6 +26,13 @@ ogmeta: {
 ---
 
 {% contentfor product-buttons %}
+<div class="product-buttons">
+  <div class="button-container">
+    <a href="{{page.download}}" id="o-download-button" class="button product-button-download">
+      <span><i class="fa fa-download fa-lg"></i>{{page.downloadtitle}}</span>
+    </a>
+  </div>
+</div>
 {% endcontentfor %}
 
 ## Features
