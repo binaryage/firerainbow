@@ -1,5 +1,5 @@
 ---
-layout: product-home
+layout: product
 title: FireRainbow enables javascript syntax highlighting for Firebug
 product: firerainbow
 product_title: FireRainbow
