@@ -84,7 +84,7 @@ Note: Some people have reported they are unable to download and install the exte
 
 ### Install bleeding edge version from sources
 
-    git clone git://github.com/binaryage/firerainbow.git
+    git clone https://github.com/binaryage/firerainbow.git
     cd firerainbow
     rake
     
